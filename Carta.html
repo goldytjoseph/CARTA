@@ -25,87 +25,115 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,ital,wght@8..60,0,300..700;8..60,1,400..600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,ital,wght@6..72,0,300..700;6..72,1,300..600&family=Hanken+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400..600&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
   /* ═══════════ DESIGN TOKENS ═══════════ */
   :root {
-    --bg: #f7f4ed;
-    --bg-warm: #f3efe5;
-    --paper: #fbf9f3;
-    --ink: #1d1b16;
-    --ink-2: #3a352d;
-    --ink-3: #6e675b;
-    --ink-4: #a39c8e;
-    --ink-5: #d6cfbf;
-    --rule: #e6dfcc;
-    --rule-2: #efe9d9;
+    /* Warm ivory desk + clean page surface — premium literary feel */
+    --bg: #ece4d4;
+    --bg-warm: #e3dac8;
+    --paper: #fdfbf6;
+    --paper-2: #f6f1e6;
+    --ink: #211d17;
+    --ink-2: #3d362b;
+    --ink-3: #6b6253;
+    --ink-4: #9a9181;
+    --ink-5: #cdc4b1;
+    --rule: #e0d7c3;
+    --rule-2: #ebe3d2;
     --accent: #9c2a1a;
     --accent-bg: rgba(156,42,26,0.06);
-    --code-bg: #f0ebda;
-    --highlight: #ffec99;
+    --accent-strong: #872315;
+    --gilt: #a9823f;
+    --gilt-bg: rgba(169,130,63,0.10);
+    --code-bg: #efe7d4;
+    --highlight: #ffdf87;
     --note: #2563eb;
     --warning: #ea580c;
     --tip: #16a34a;
     --important: #9333ea;
     --caution: #dc2626;
-    --shadow-sm: 0 1px 2px rgba(60,50,30,0.06);
-    --shadow: 0 1px 3px rgba(60,50,30,0.06), 0 8px 24px rgba(60,50,30,0.06);
-    --shadow-lg: 0 10px 40px rgba(60,50,30,0.18);
 
-    --font-serif: 'Source Serif 4', 'Iowan Old Style', Charter, Georgia, serif;
-    --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Layered, warm-toned elevation */
+    --shadow-sm: 0 1px 2px rgba(58,44,22,0.07);
+    --shadow: 0 1px 2px rgba(58,44,22,0.05), 0 6px 16px -6px rgba(58,44,22,0.12);
+    --shadow-lg: 0 4px 14px -6px rgba(40,30,14,0.16), 0 24px 60px -14px rgba(40,30,14,0.26);
+    --shadow-page: 0 1px 0 rgba(255,255,255,0.6) inset, 0 1px 3px rgba(58,44,22,0.05), 0 22px 60px -24px rgba(58,44,22,0.34);
+
+    --r-sm: 8px;
+    --r: 11px;
+    --r-lg: 16px;
+    --r-xl: 22px;
+
+    --font-serif: 'Newsreader', 'Iowan Old Style', Charter, Georgia, 'Times New Roman', serif;
+    --font-display: 'Newsreader', 'Source Serif 4', Georgia, serif;
+    --font-sans: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     --font-dyslexic: 'Lexend', sans-serif;
 
-    --measure: 90ch;
-    --line-height: 1.7;
+    --measure: 72ch;
+    --line-height: 1.72;
     --font-family-active: var(--font-serif);
   }
 
   body.sepia {
-    --bg: #f4ecd8;
-    --bg-warm: #efe6cc;
-    --paper: #f8f1de;
+    --bg: #ece0c2;
+    --bg-warm: #e6d9b8;
+    --paper: #f8f1dc;
+    --paper-2: #f1e7c9;
     --ink: #20180c;
     --ink-2: #3d3320;
     --ink-3: #6e5f43;
     --ink-4: #a3957a;
-    --ink-5: #d4c5a3;
-    --rule: #d8c9a8;
-    --rule-2: #e3d4b3;
+    --ink-5: #d2c19c;
+    --rule: #d8c9a4;
+    --rule-2: #e3d4ad;
     --accent: #8b3a14;
     --accent-bg: rgba(139,58,20,0.07);
-    --code-bg: #ebdfc0;
-    --highlight: #f5d97a;
+    --accent-strong: #6f2c0c;
+    --gilt: #97732f;
+    --gilt-bg: rgba(151,115,47,0.12);
+    --code-bg: #ebdfbb;
+    --highlight: #f3d169;
+    --shadow-page: 0 1px 0 rgba(255,255,255,0.5) inset, 0 1px 3px rgba(80,58,20,0.08), 0 22px 58px -24px rgba(80,58,20,0.4);
   }
 
   body.dark {
-    --bg: #16140f;
-    --bg-warm: #1a1813;
-    --paper: #1c1a14;
-    --ink: #e8e2d2;
-    --ink-2: #c5bfae;
-    --ink-3: #8a8474;
-    --ink-4: #5e5849;
-    --ink-5: #3a352c;
-    --rule: #2a2620;
-    --rule-2: #2f2b24;
-    --accent: #d97757;
-    --accent-bg: rgba(217,119,87,0.08);
-    --code-bg: #221f18;
+    --bg: #14120d;
+    --bg-warm: #1b1812;
+    --paper: #1e1b15;
+    --paper-2: #25221a;
+    --ink: #ece6d6;
+    --ink-2: #cac3b1;
+    --ink-3: #918a78;
+    --ink-4: #645d4d;
+    --ink-5: #3c372d;
+    --rule: #2c2820;
+    --rule-2: #332e25;
+    --accent: #df8a63;
+    --accent-bg: rgba(223,138,99,0.10);
+    --accent-strong: #c96a48;
+    --gilt: #c6a35f;
+    --gilt-bg: rgba(198,163,95,0.12);
+    --code-bg: #201d16;
     --highlight: #6b5818;
     --note: #60a5fa;
     --warning: #fb923c;
     --tip: #4ade80;
     --important: #c084fc;
     --caution: #f87171;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+    --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 24px -10px rgba(0,0,0,0.65);
+    --shadow-lg: 0 8px 24px -10px rgba(0,0,0,0.6), 0 34px 78px -20px rgba(0,0,0,0.72);
+    --shadow-page: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 3px rgba(0,0,0,0.5), 0 28px 70px -26px rgba(0,0,0,0.8);
   }
 
   body.high-contrast {
     --bg: #ffffff;
     --bg-warm: #f5f5f5;
     --paper: #ffffff;
+    --paper-2: #f7f7f7;
     --ink: #000000;
     --ink-2: #000000;
     --ink-3: #1a1a1a;
@@ -115,7 +143,11 @@
     --rule-2: #333333;
     --accent: #0000cc;
     --accent-bg: rgba(0,0,204,0.08);
+    --accent-strong: #0000aa;
+    --gilt: #0000cc;
+    --gilt-bg: rgba(0,0,204,0.10);
     --code-bg: #f0f0f0;
+    --shadow-page: 0 0 0 1px #000;
   }
 
   /* ═══════════ RESET ═══════════ */
@@ -222,6 +254,7 @@
     gap: 7px;
     height: 34px;
     padding: 0 14px;
+    white-space: nowrap;
     background: var(--ink);
     color: var(--bg);
     border: none;
@@ -1131,18 +1164,156 @@
   ::selection { background: var(--accent); color: #fff; }
 
   /* Print */
+  /* ═══════════════════════════════════════════════════════════════
+     PREMIUM PDF EXPORT
+     All colours and backgrounds are rendered exactly (no white-wash).
+     Every UI widget is suppressed. A TOC section (#pdf-toc) injected
+     by exportPDF() forms the first page; the article follows on the
+     subsequent pages with smart break rules.
+     ═══════════════════════════════════════════════════════════════ */
   @media print {
-    #topbar, #toc-panel, #progress, #meta-bar, #search-bar, #back-to-top, #tts-controls, #toast, #lightbox, #highlight-toolbar { display: none !important; }
-    body { background: white; color: black; font-size: 11pt; }
-    body.dark, body.sepia { background: white; color: black; }
-    #shell { margin-top: 0; }
-    #main-area { padding: 0; }
-    #article { max-width: 100% !important; }
-    #article pre { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
-    #article h1, #article h2, #article h3 { page-break-after: avoid; }
-    #article p { orphans: 3; widows: 3; }
-    #article img { max-width: 100%; page-break-inside: avoid; }
-    a { color: black !important; }
+
+    /* Force exact colour reproduction on every node */
+    *, *::before, *::after {
+      print-color-adjust:         exact !important;
+      -webkit-print-color-adjust: exact !important;
+    }
+
+    /* A4 page with comfortable reading margins */
+    @page { size: A4; margin: 16mm 20mm 22mm; }
+
+    /* ── Suppress every UI element that is not article content ── */
+    #topbar, #toc-panel, #progress, #meta-bar, #search-bar,
+    #back-to-top, #tts-controls, #toast, #lightbox, #lightbox-close,
+    #highlight-toolbar, #reading-ruler, #empty-state, #carta-flock,
+    #stats-popover, #tab-bar, #breadcrumb, #progress-ring, #ring-menu,
+    #minimap, #annotation-layer, .side-drawer, .modal-overlay,
+    .copy-btn, .heading-anchor, .footnote-popover,
+    #bookmarkBtn, #widthToggle, #focusToggle, #ttsToggle, #printBtn,
+    .table-tools, .tts-word-active { display: none !important; }
+
+    /* ── Collapse shell to bare article ── */
+    html { background: var(--bg) !important; }
+    body {
+      background: var(--bg) !important;
+      color: var(--ink) !important;
+      font-size: 11pt !important;
+      margin: 0 !important; padding: 0 !important;
+    }
+    #shell     { display: block !important; margin-top: 0 !important; }
+    #main-area { padding: 0 !important; max-width: 100% !important;
+                 display: block !important; min-height: 0 !important; }
+
+    /* Article: flat on the page — no card shadow, no radius, no decorative border */
+    #article {
+      max-width: 100% !important; padding: 0 !important;
+      border: none !important; border-radius: 0 !important;
+      box-shadow: none !important; background: transparent !important;
+      animation: none !important;
+    }
+    #article::before   { display: none !important; } /* binding-edge gilt line: card-only decoration */
+
+    /* HR: cascade from the main theme already shows the correct ❧ gilt
+       asterism; we only need to guarantee no background bleed in print. */
+    #article hr { background: none !important; border: none !important; }
+
+    /* Focus-mode dims non-focused elements to 25% opacity on-screen.
+       In print everything must be fully visible. */
+    body.focus-mode #article > * { opacity: 1 !important; transition: none !important; }
+
+    /* ── Smart page-break rules ── */
+    #article h2, #article h3, #article h4,
+    #article h5, #article h6 { page-break-after: avoid; break-after: avoid; }
+    #article p  { orphans: 3; widows: 3; }
+    #article pre, #article table, #article blockquote,
+    #article .alert, #article .mermaid-container,
+    #article .frontmatter, #article figure,
+    #article img { page-break-inside: avoid; break-inside: avoid; }
+    #article img { max-width: 100% !important; box-shadow: none !important; }
+    #article pre { box-shadow: none !important; border: 1px solid var(--rule) !important; }
+
+    /* Links keep accent underline; colour reverts to ink to avoid
+       cyan/purple browser default in some PDF viewers */
+    #article a { color: var(--ink) !important; }
+
+    /* User highlights retain their colour in print */
+    .user-highlight { background: var(--highlight) !important; }
+
+    /* ═══════════════════════════════════════════════════════════
+       PDF TABLE OF CONTENTS
+       #pdf-toc is injected by exportPDF() before #article.
+       Hidden on screen (inline style="display:none"); revealed
+       here with !important so it forms the first printed page.
+       ═══════════════════════════════════════════════════════════ */
+    #pdf-toc {
+      display: block !important;
+      page-break-after: always; break-after: page;
+      padding-bottom: 12pt;
+      background: transparent !important;
+    }
+
+    /* CARTA brand eyebrow above the "Contents" title */
+    .pdf-toc-brand {
+      font-family: var(--font-sans, sans-serif);
+      font-size: 7.5pt; font-weight: 700;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent, #9c2a1a) !important;
+      margin-bottom: 30pt; padding-bottom: 10pt;
+      border-bottom: 2px solid var(--ink, #211d17) !important;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    /* "Contents" heading */
+    .pdf-toc-heading {
+      font-family: var(--font-serif, serif);
+      font-size: 28pt; font-weight: 300;
+      letter-spacing: -0.03em; line-height: 1.1;
+      color: var(--ink, #211d17) !important;
+      margin: 0 0 24pt; padding: 0 !important; border: none !important;
+    }
+    .pdf-toc-heading::after { display: none !important; }
+
+    .pdf-toc-list { list-style: none; padding: 0; margin: 0; }
+
+    .pdf-toc-item {
+      display: block;
+      border-bottom: 1px solid var(--rule-2, #ebe3d2) !important;
+    }
+    .pdf-toc-item:last-child { border-bottom: none !important; }
+
+    /* Indent each level; font-size diminishes subtly */
+    .pdf-toc-h1 .pdf-toc-link { padding-left: 0;    font-size: 11pt; }
+    .pdf-toc-h2 .pdf-toc-link { padding-left: 14pt; font-size: 10pt; }
+    .pdf-toc-h3 .pdf-toc-link { padding-left: 26pt; font-size: 9.5pt; }
+    .pdf-toc-h4 .pdf-toc-link { padding-left: 36pt; font-size: 9pt; }
+
+    .pdf-toc-link {
+      display: flex; align-items: baseline;
+      width: 100%; padding: 4.5pt 0;
+      text-decoration: none !important;
+      color: var(--ink, #211d17) !important;
+    }
+
+    /* Title text — serif, truncated with ellipsis if very long */
+    .pdf-toc-text {
+      font-family: var(--font-serif, serif);
+      color: inherit !important;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 88%; flex-shrink: 1;
+    }
+    .pdf-toc-h1 .pdf-toc-text { font-weight: 600; }
+
+    /* Dotted leader between title and the right margin */
+    .pdf-toc-dots {
+      flex: 1;
+      border-bottom: 1px dotted var(--rule, #e0d7c3) !important;
+      margin: 0 5pt; position: relative; top: -2pt; min-width: 10pt;
+    }
+
+    .pdf-toc-empty {
+      font-family: var(--font-sans, sans-serif); font-size: 10pt;
+      color: var(--ink-3, #6b6253) !important; font-style: italic; padding: 8pt 0;
+    }
   }
 
   /* Responsive */
@@ -1651,6 +1822,8 @@
 
   #article .table-wrap table {
     width: 100%;
+    max-width: 100%;
+    table-layout: auto;
     border-collapse: collapse;
     margin: 0 !important;
     display: table;
@@ -1668,7 +1841,10 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--ink-3);
-    white-space: nowrap;
+    /* wrap header labels so wide tables stay inside the display */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
     position: sticky;
     top: 0;
     z-index: 1;
@@ -1678,6 +1854,9 @@
     border-bottom: 1px solid var(--rule-2);
     color: var(--ink-2);
     vertical-align: top;
+    /* wrap cell content instead of forcing horizontal scroll */
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   #article .table-wrap tbody tr:last-child td { border-bottom: none; }
   #article .table-wrap tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--bg-warm) 50%, transparent); }
@@ -1915,6 +2094,592 @@
   .empty-mark { color: var(--ink-4); }
   .empty-mark svg { width: 108px; height: 108px; display: block; }
 
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* ═══════════  PREMIUM LUXE PASS — materials · depth · craft  ═════ */
+  /* ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Paper desk: subtle grain + seating vignette ── */
+  body {
+    background-color: var(--bg);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      radial-gradient(135% 90% at 50% -15%, color-mix(in srgb, var(--paper) 55%, transparent), transparent 58%);
+    background-blend-mode: soft-light, normal;
+    background-attachment: fixed, fixed;
+    font-optical-sizing: auto;
+  }
+  body.high-contrast { background-image: none; }
+
+  /* ── Top bar: fine translucent stationery with a gilt hairline ── */
+  #topbar {
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    border-bottom: 1px solid color-mix(in srgb, var(--rule) 80%, transparent);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--gilt) 22%, transparent), 0 6px 20px -16px rgba(40,30,14,0.5);
+    padding: 0 22px;
+  }
+
+  /* ── Brand lockup ── */
+  .brand-mark { color: var(--accent); transition: transform 0.4s cubic-bezier(.2,.7,.3,1); }
+  .brand:hover .brand-mark { transform: rotate(-8deg); }
+  .brand-word {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: 0.30em;
+    font-size: 15px;
+    background: linear-gradient(180deg, var(--ink), color-mix(in srgb, var(--ink) 70%, var(--accent)));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-left: 2px;
+  }
+
+  /* ── Icon buttons: tactile, quiet ── */
+  .icon-btn {
+    border-radius: var(--r-sm);
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+  }
+  .icon-btn:hover {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--rule);
+    box-shadow: var(--shadow-sm);
+  }
+  .icon-btn:active { transform: translateY(0.5px); }
+  .icon-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), var(--shadow-sm);
+  }
+
+  /* ── Primary action ── */
+  .upload-btn {
+    border-radius: var(--r-sm);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 92%, #fff), var(--ink));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), var(--shadow);
+    letter-spacing: 0.01em;
+    transition: transform 0.14s ease, box-shadow 0.18s ease, background 0.2s ease;
+  }
+  .upload-btn:hover {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+  .upload-btn:active { transform: translateY(0); }
+
+  /* ── Reading progress: claret → gilt filament ── */
+  #progress {
+    height: 2.5px; opacity: 1;
+    background: linear-gradient(90deg, var(--accent), var(--gilt));
+    box-shadow: 0 0 10px -2px color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+
+  /* ── Menus & popovers ── */
+  .dropdown-menu, #ring-menu, #stats-popover, .footnote-popover {
+    border-radius: var(--r-lg);
+    border-color: color-mix(in srgb, var(--rule) 90%, transparent);
+    box-shadow: var(--shadow-lg);
+    padding: 7px;
+  }
+  .dropdown-menu { background: color-mix(in srgb, var(--paper) 96%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .dropdown-item { border-radius: var(--r-sm); transition: background 0.13s ease, color 0.13s ease, padding-left 0.13s ease; }
+  .dropdown-item:hover { background: var(--accent-bg); color: var(--ink); padding-left: 13px; }
+  .dropdown-item.active { color: var(--accent-strong); }
+  .dropdown-section { color: var(--ink-4); letter-spacing: 0.12em; }
+
+  /* ── Search ── */
+  #search-bar { border-radius: var(--r-lg); box-shadow: var(--shadow-lg); padding: 9px; }
+  #search-input { border-radius: var(--r-sm); background: var(--paper-2); border: 1px solid var(--rule); transition: box-shadow 0.16s, border-color 0.16s; }
+  #search-input:focus { box-shadow: 0 0 0 3px var(--accent-bg); border-color: var(--accent); }
+
+  /* ── Table of contents ── */
+  .toc-label { color: var(--ink-4); letter-spacing: 0.16em; }
+  #toc-list a { border-left-width: 1.5px; border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+  #toc-list a:hover { color: var(--ink); background: color-mix(in srgb, var(--bg-warm) 60%, transparent); }
+  #toc-list a.active {
+    color: var(--accent-strong); font-weight: 600;
+    border-left-color: var(--accent);
+    background: var(--accent-bg);
+  }
+
+  /* ════════════════ THE PAGE ════════════════ */
+  /* The article reads as a sheet of fine paper floating on the desk. */
+  #article {
+    max-width: calc(var(--measure) + 132px);
+    background: var(--paper);
+    border: 1px solid color-mix(in srgb, var(--rule) 80%, transparent);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-page);
+    padding: 76px 66px 92px;
+    position: relative;
+  }
+  /* faint gilt rule down the binding edge */
+  #article::before {
+    content: "";
+    position: absolute; left: 0; top: 22px; bottom: 22px; width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--gilt) 38%, transparent) 18%, color-mix(in srgb, var(--gilt) 38%, transparent) 82%, transparent);
+    opacity: 0.6; pointer-events: none;
+  }
+  /* Empty state, split & page-flip: no page chrome */
+  #article:has(#empty-state),
+  body.split #article,
+  body.page-flip #article {
+    background: none; border: none; box-shadow: none; border-radius: 0;
+    padding-left: 0; padding-right: 0;
+  }
+  #article:has(#empty-state)::before,
+  body.split #article::before,
+  body.page-flip #article::before { display: none; }
+  body.page-flip #article { padding: 0 40px; }
+  body.split #article { padding-top: 8px; }
+
+  /* ── Running head (meta bar) above the page ── */
+  #meta-bar {
+    justify-content: center;
+    border-bottom: none;
+    margin-bottom: 22px;
+    padding-bottom: 0;
+    gap: 12px;
+  }
+  .meta-item {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.13em;
+    color: var(--ink-4);
+  }
+  .meta-item#meta-filename { color: var(--ink-3); text-transform: none; letter-spacing: 0.01em; font-size: 12.5px; font-weight: 600; }
+
+  /* ════════════════ TYPOGRAPHY ════════════════ */
+  body { font-size: 18.5px; }
+  #article { font-optical-sizing: auto; }
+  #article p { color: var(--ink-2); }
+
+  #article h1, #article h2, #article h3, #article h4 { font-family: var(--font-display); }
+  #article h1 {
+    font-size: 2.7em; font-weight: 600; line-height: 1.08;
+    letter-spacing: -0.018em; margin: 0 0 0.42em; color: var(--ink);
+  }
+  #article h2 {
+    font-size: 1.72em; font-weight: 600; line-height: 1.2;
+    letter-spacing: -0.012em;
+    margin: 1.9em 0 0.5em; padding-top: 0.95em;
+    border-top: 1px solid var(--rule-2);
+  }
+  #article h2::after {
+    content: ""; display: block; width: 38px; height: 2px; margin-top: 0.34em;
+    background: linear-gradient(90deg, var(--accent), var(--gilt));
+    border-radius: 2px; opacity: 0.85;
+  }
+  #article h3 { font-size: 1.3em; font-weight: 600; letter-spacing: -0.008em; margin: 1.7em 0 0.4em; }
+  #article h4 { font-size: 1.08em; font-weight: 700; margin: 1.4em 0 0.3em; }
+  #article h5, #article h6 { color: var(--ink-3); letter-spacing: 0.08em; }
+
+  /* Refined drop cap (display serif, claret) */
+  #article h1 + p::first-letter,
+  #article .frontmatter + h1 + p::first-letter {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 3.15em;
+    line-height: 0.74;
+    float: left;
+    margin: 0.06em 0.10em -0.02em 0;
+    padding: 0;
+    color: var(--accent);
+  }
+
+  /* Links: ink with a claret underline that thickens to gilt */
+  #article a {
+    text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    text-underline-offset: 3.5px;
+    transition: color 0.15s, text-decoration-color 0.15s;
+  }
+  #article a:hover { color: var(--accent-strong); text-decoration-color: var(--gilt); }
+
+  /* Blockquote: editorial pull-quote */
+  #article blockquote {
+    border-left: 2px solid var(--gilt);
+    background: linear-gradient(90deg, var(--gilt-bg), transparent 80%);
+    margin: 1.7em 0; padding: 0.5em 1.3em;
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    font-family: var(--font-serif); font-style: italic;
+    color: var(--ink-2); font-size: 1.06em;
+  }
+
+  /* Alerts: softer cards with depth */
+  #article .alert {
+    border-radius: var(--r); border-left-width: 3px;
+    padding: 15px 18px; box-shadow: var(--shadow-sm);
+  }
+
+  /* Lists */
+  #article li::marker { color: var(--accent); }
+  #article li { color: var(--ink-2); }
+
+  /* Inline code chip */
+  #article :not(pre) > code {
+    background: var(--code-bg);
+    border: 1px solid color-mix(in srgb, var(--rule) 70%, transparent);
+    color: var(--accent-strong);
+    border-radius: 5px; padding: 0.5px 5px;
+  }
+  body.dark #article :not(pre) > code { color: var(--accent); }
+
+  /* Code blocks: refined panel */
+  #article pre {
+    border-radius: var(--r); border: 1px solid var(--rule);
+    background: var(--paper-2);
+    box-shadow: var(--shadow);
+    padding-top: 10px;
+  }
+  body.dark #article pre { background: #16140e; }
+  #article pre::before { color: var(--ink-4); letter-spacing: 0.14em; top: 10px; }
+  #article pre code { font-size: 13.5px; line-height: 1.75; }
+  .copy-btn, #article pre .code-tools button { border-radius: var(--r-sm); }
+
+  /* Tables: page-matched header */
+  #article .table-wrap { border-radius: var(--r-lg); box-shadow: var(--shadow); }
+  #article .table-wrap thead th { background: var(--paper-2); letter-spacing: 0.08em; color: var(--ink-3); }
+
+  /* Figures */
+  #article img { border-radius: var(--r); box-shadow: var(--shadow); }
+
+  /* HR: centered gilt asterism */
+  #article hr {
+    border: none; background: none; height: auto;
+    margin: 2.8em auto; text-align: center;
+  }
+  #article hr::before {
+    content: "❧"; color: var(--gilt); font-size: 1.15em; opacity: 0.8;
+    letter-spacing: normal; display: inline-block;
+  }
+
+  /* Footnotes */
+  #article .footnotes { border-top: 1px solid var(--rule); }
+  #article sup a { color: var(--accent); }
+
+  /* Frontmatter card */
+  .frontmatter {
+    background: linear-gradient(180deg, var(--paper-2), color-mix(in srgb, var(--paper-2) 60%, var(--paper)));
+    border: 1px solid var(--rule); border-radius: var(--r);
+    box-shadow: var(--shadow-sm);
+    padding: 18px 22px;
+  }
+  .frontmatter-key { color: var(--gilt); }
+
+  /* ════════════════ FLOATING UI — glass pills ════════════════ */
+  #back-to-top, #progress-ring {
+    box-shadow: var(--shadow-lg);
+  }
+  #back-to-top {
+    background: color-mix(in srgb, var(--ink) 94%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid color-mix(in srgb, var(--ink) 100%, transparent);
+    transition: transform 0.18s ease, background 0.2s ease;
+  }
+  #back-to-top:hover { background: var(--accent); transform: translateY(-3px); }
+
+  #tts-controls, #autoscroll-bar, #pageflip-nav {
+    border-radius: var(--r-xl);
+    border: 1px solid color-mix(in srgb, var(--rule) 85%, transparent);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: saturate(160%) blur(16px);
+    -webkit-backdrop-filter: saturate(160%) blur(16px);
+    box-shadow: var(--shadow-lg);
+  }
+  #tts-controls button, #autoscroll-bar button, #pageflip-nav button { border-radius: var(--r-sm); transition: background 0.15s, color 0.15s; }
+  #ttsPlay { background: var(--accent-bg) !important; color: var(--accent-strong) !important; }
+  #ttsPlay:hover { background: var(--accent) !important; color: #fff !important; }
+
+  #progress-ring .ring-fg { stroke: var(--accent); }
+  #progress-ring .ring-pct { color: var(--ink-2); }
+
+  /* Minimap rows pick up accent on the active region */
+  .mm-row { background: var(--ink-5); }
+
+  /* ════════════════ MODALS · DRAWERS · PALETTE ════════════════ */
+  .modal-box, .cmd-box, .side-drawer {
+    border-radius: var(--r-lg);
+    border-color: color-mix(in srgb, var(--rule) 85%, transparent);
+    box-shadow: var(--shadow-lg);
+  }
+  .side-drawer { border-radius: 0; }
+  .modal-overlay, #cmd-palette { background: color-mix(in srgb, var(--ink) 34%, transparent); }
+  .modal-btn { border-radius: var(--r-sm); transition: background 0.15s, transform 0.12s; }
+  .modal-btn.primary { background: var(--ink); }
+  .modal-btn.primary:hover { background: var(--accent); }
+  .cmd-item { border-radius: var(--r-sm); }
+  .cmd-item.sel { background: var(--accent-bg); }
+  .stat-card { border-radius: var(--r); background: var(--paper-2); box-shadow: var(--shadow-sm); }
+  .stat-num { font-family: var(--font-display); color: var(--accent-strong); }
+  .shortcut-row kbd { border-radius: var(--r-sm); background: var(--paper-2); }
+
+  /* ════════════════ TOAST ════════════════ */
+  #toast {
+    border-radius: var(--r); box-shadow: var(--shadow-lg);
+    background: color-mix(in srgb, var(--ink) 96%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid color-mix(in srgb, #fff 8%, transparent);
+    letter-spacing: 0.01em;
+  }
+
+  /* ════════════════ EMPTY STATE — first impression ════════════════ */
+  #empty-state { padding: 40px 24px 64px; }
+  .empty-mark {
+    color: var(--accent);
+    margin-bottom: 26px;
+    filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--accent) 22%, transparent));
+  }
+  .empty-eyebrow {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.32em; text-transform: uppercase; color: var(--gilt);
+    margin-bottom: 16px;
+  }
+  .empty-title {
+    font-family: var(--font-display);
+    font-size: 40px; font-weight: 500; line-height: 1.08;
+    letter-spacing: -0.02em; color: var(--ink);
+    margin-bottom: 14px;
+    text-wrap: balance;
+  }
+  .empty-title em { font-style: italic; color: var(--accent); }
+  .empty-sub {
+    font-family: var(--font-serif); font-size: 17px; color: var(--ink-3);
+    line-height: 1.65; max-width: 400px; margin-bottom: 32px;
+  }
+  .drop-zone {
+    border: 1.5px dashed color-mix(in srgb, var(--ink-5) 90%, var(--accent));
+    border-radius: var(--r-lg);
+    background: color-mix(in srgb, var(--paper) 70%, transparent);
+    box-shadow: var(--shadow-sm);
+    padding: 30px 40px;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent); background: var(--accent-bg);
+    box-shadow: var(--shadow); transform: translateY(-1px);
+  }
+  .url-input-wrap input { border-radius: var(--r-sm); background: var(--paper); }
+  .url-input-wrap input:focus { box-shadow: 0 0 0 3px var(--accent-bg); }
+  .url-input-wrap button { border-radius: var(--r-sm); background: var(--ink); }
+  .url-input-wrap button:hover { background: var(--accent); }
+  .recent-item { border-radius: var(--r-sm); }
+  .recent-item:hover { background: var(--paper); box-shadow: var(--shadow-sm); }
+
+  /* ════════════════ SELECTION · SCROLLBARS · FOCUS ════════════════ */
+  ::selection { background: color-mix(in srgb, var(--accent) 88%, #000); color: #fff; }
+  ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink-5) 90%, transparent); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ── Responsive: relax the page on small screens ── */
+  @media (max-width: 880px) {
+    #article { padding: 44px 30px 64px; }
+    #article h1 { font-size: 2.15em; }
+    #article h2 { font-size: 1.5em; }
+  }
+  @media (max-width: 540px) {
+    body { font-size: 17.5px; }
+    #article { padding: 30px 20px 48px; border-radius: var(--r); }
+    #article::before { display: none; }
+    .empty-title { font-size: 31px; }
+  }
+
+  /* ── Print: drop the page chrome, keep the words ── */
+  /* @media print rules are consolidated in the single block above. */
+
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* ═══════════  PREMIUM MOTION & MICRO-INTERACTIONS  ═════════════ */
+  /* Delight lives in the chrome, affordances and feedback — never in   */
+  /* the reading body (content must never jump or slide). Everything   */
+  /* movement-based is gated behind prefers-reduced-motion.            */
+  /* ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Icon buttons: a touch of lift on hover, crisp press ── */
+  .icon-btn:hover { transform: translateY(-1px); }
+  .icon-btn:active { transform: translateY(0.5px) scale(0.97); }
+
+  /* ── Links: underline thickens & drops on hover ── */
+  #article a {
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.2s ease,
+                text-decoration-thickness 0.2s ease, text-underline-offset 0.2s ease;
+  }
+  #article a:hover { text-decoration-thickness: 2px; text-underline-offset: 5px; }
+
+  /* ── Section heading gilt-bar draws itself in on first reveal ── */
+  body.motion-ready #article h2::after {
+    width: 0;
+    transition: width 0.7s cubic-bezier(.2,.7,.3,1);
+  }
+  body.motion-ready #article h2.bar-in::after { width: 38px; }
+
+  /* ── Back-to-top: arrow nudges up on hover ── */
+  #back-to-top svg { transition: transform 0.25s cubic-bezier(.34,1.5,.5,1); }
+  #back-to-top:hover svg { transform: translateY(-2px); }
+
+  /* ── Toast: spring entrance + a quietly pulsing status dot ── */
+  #toast {
+    display: flex; align-items: center; gap: 10px;
+    transition: opacity 0.34s cubic-bezier(.34,1.4,.5,1),
+                transform 0.44s cubic-bezier(.34,1.4,.5,1);
+  }
+  #toast::before {
+    content: ""; flex-shrink: 0;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ── Dropdown items cascade in when a menu opens ── */
+  .dropdown-menu.open .dropdown-item {
+    animation: ddItemIn 0.28s cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  .dropdown-menu.open .dropdown-item:nth-child(1) { animation-delay: 0.02s; }
+  .dropdown-menu.open .dropdown-item:nth-child(2) { animation-delay: 0.045s; }
+  .dropdown-menu.open .dropdown-item:nth-child(3) { animation-delay: 0.07s; }
+  .dropdown-menu.open .dropdown-item:nth-child(4) { animation-delay: 0.095s; }
+  .dropdown-menu.open .dropdown-item:nth-child(5) { animation-delay: 0.12s; }
+  .dropdown-menu.open .dropdown-item:nth-child(6) { animation-delay: 0.145s; }
+  .dropdown-menu.open .dropdown-item:nth-child(7) { animation-delay: 0.17s; }
+  .dropdown-menu.open .dropdown-item:nth-child(8) { animation-delay: 0.195s; }
+  .dropdown-menu.open .dropdown-item:nth-child(n+9) { animation-delay: 0.22s; }
+  @keyframes ddItemIn {
+    from { opacity: 0; transform: translateX(-7px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── Cards lift toward the reader on hover ── */
+  .recent-item, .stat-card { transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.15s ease; }
+  .recent-item:hover { transform: translateY(-2px); }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+  /* ── Copy / table-copy success: a satisfying pop ── */
+  .copy-btn.copied,
+  #article pre .code-tools button.copied,
+  .table-tools button.copied { animation: copiedPop 0.42s cubic-bezier(.34,1.6,.5,1); }
+  @keyframes copiedPop {
+    0%   { transform: scale(0.84); }
+    55%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── Reduced-motion-only flourishes ── */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Primary action: light sweeps across on hover */
+    .upload-btn { position: relative; overflow: hidden; }
+    .upload-btn::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(110deg, transparent 32%,
+                  rgba(255,255,255,0.22) 50%, transparent 68%);
+      transform: translateX(-130%);
+      transition: transform 0.6s ease;
+    }
+    .upload-btn:hover::after { transform: translateX(130%); }
+
+    /* Empty-state monogram breathes gently */
+    .empty-mark { animation: cartaFloat 6.5s ease-in-out infinite; }
+    @keyframes cartaFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-7px); }
+    }
+
+    /* Toast status dot pulses while visible */
+    #toast.visible::before { animation: toastPulse 1.7s ease-out infinite; }
+    @keyframes toastPulse {
+      0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
+      70%  { box-shadow: 0 0 0 7px transparent; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+
+    /* Magnetic upload button (offset driven by JS) */
+    .upload-btn { transition: transform 0.18s cubic-bezier(.2,.7,.3,1), box-shadow 0.18s ease, background 0.2s ease; }
+    .upload-btn.magnetic { transition: transform 0.08s linear, box-shadow 0.18s ease, background 0.2s ease; }
+  }
+
+  /* Honour reduced-motion: kill all the heading-bar reveal too */
+  @media (prefers-reduced-motion: reduce) {
+    body.motion-ready #article h2::after { width: 38px !important; transition: none !important; }
+  }
+
+  /* ════════════════ HOME LOGO · THE FLOCK ════════════════ */
+  /* Hover the monogram → its glyphs become birds and scatter.          */
+  /* Hover the title → the flock returns and reforms the monogram.      */
+  #empty-state .empty-mark { cursor: pointer; }
+  #empty-state .empty-title { cursor: pointer; }
+  /* Freeze the idle float while the flock is in motion so birds land true */
+  body.flock-active .empty-mark { animation: none !important; transform: none !important; }
+  .empty-mark svg { transition: opacity 0.28s ease; }
+  .empty-mark.is-hidden svg { opacity: 0; }
+
+  #carta-flock {
+    position: fixed; inset: 0;
+    z-index: 240; pointer-events: none; overflow: visible;
+  }
+  .flyer {
+    position: fixed; left: 0; top: 0;
+    display: grid; place-items: center;
+    will-change: transform, opacity;
+  }
+  .flyer-char {
+    grid-area: 1 / 1;
+    font-family: var(--font-mono);
+    font-weight: 700; color: var(--accent);
+    line-height: 1; white-space: pre;
+    will-change: opacity, transform;
+  }
+  /* ── Crow silhouette — inline SVG, no external assets ──────────────────
+     Colour: CSS currentColor → var(--accent), auto-tints all four themes.
+     ViewBox 200 × 120 (aspect 1.667).
+
+     Anatomy:  head right, tail left, bird flies RIGHT.
+       crow-wn  near wing  — broad paddle, upper-left in neutral
+                pivot (112,51) → transform-origin: 56% 42.5%
+       crow-wb  far  wing  — horizontal in neutral, opposite phase
+                pivot (112,62) → transform-origin: 56% 51.7%
+     transform-box:view-box makes % values address SVG user-unit space.
+
+     Phase geometry (CSS clockwise = +deg):
+       Near wing tip rests upper-left of pivot.  rotate(+30) moves it
+       further up (upstroke); rotate(−32) sweeps it down (downstroke).
+       Far wing is exactly opposite-phase so one tip is always visible
+       above AND one below the body → classic deep-flap crow silhouette.
+     Timing: downstroke (42 % of cycle) faster than upstroke — matches
+       the power-phase mechanics of real crow flight. */
+
+  .flyer-bird {
+    grid-area: 1 / 1;
+    color: var(--accent);
+    will-change: opacity, transform;
+  }
+  .flyer-bird svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+    display: block;
+    fill: currentColor;
+  }
+  /* transform-box:view-box → transform-origin % relative to 200×120 viewBox */
+  .flyer-bird .crow-wn,
+  .flyer-bird .crow-wb { transform-box: view-box; }
+
+  .flyer.flapping .flyer-bird .crow-wn {
+    animation: flapNear var(--flap, 0.70s) ease-in-out infinite;
+  }
+  .flyer.flapping .flyer-bird .crow-wb {
+    animation: flapBack  var(--flap, 0.70s) ease-in-out infinite;
+  }
+  /* Near wing: starts UP (+30°), powers DOWN (−32°) in 42 % of cycle,
+     then recovers slowly back UP over the remaining 58 %. */
+  @keyframes flapNear {
+    0%   { transform: rotate(30deg);  animation-timing-function: cubic-bezier(0.30,0,0.45,1); }
+    42%  { transform: rotate(-32deg); animation-timing-function: cubic-bezier(0.55,0,0.70,1); }
+    100% { transform: rotate(30deg); }
+  }
+  /* Far wing: exact opposite phase, slightly smaller arc (depth). */
+  @keyframes flapBack {
+    0%   { transform: rotate(-28deg); animation-timing-function: cubic-bezier(0.30,0,0.45,1); }
+    42%  { transform: rotate(28deg);  animation-timing-function: cubic-bezier(0.55,0,0.70,1); }
+    100% { transform: rotate(-28deg); }
+  }
+
 </style>
 </head>
 <body>
@@ -2008,7 +2773,7 @@
         <button class="dropdown-item" id="opt-paste">Paste Markdown…</button>
         <button class="dropdown-item" id="opt-export">Export to HTML…</button>
         <button class="dropdown-item" id="opt-stats">Document Statistics…</button>
-        <button class="dropdown-item" id="opt-print">Print…</button>
+        <button class="dropdown-item" id="opt-print">Export PDF…</button>
         <button class="dropdown-item" id="opt-shortcuts">Keyboard Shortcuts (?)</button>
       </div>
     </div>
@@ -2025,8 +2790,8 @@
         <button class="dropdown-item theme-opt" data-theme="high-contrast"><span class="check">✓</span>High Contrast</button>
         <div class="dropdown-divider"></div>
         <div class="dropdown-section">Font</div>
-        <button class="dropdown-item font-opt" data-font="serif"><span class="check">✓</span>Serif (Source Serif)</button>
-        <button class="dropdown-item font-opt" data-font="sans"><span class="check">✓</span>Sans (Inter Tight)</button>
+        <button class="dropdown-item font-opt" data-font="serif"><span class="check">✓</span>Serif (Newsreader)</button>
+        <button class="dropdown-item font-opt" data-font="sans"><span class="check">✓</span>Sans (Hanken Grotesk)</button>
         <button class="dropdown-item font-opt" data-font="dyslexic"><span class="check">✓</span>Easy Read (Lexend)</button>
         <div class="dropdown-divider"></div>
         <div class="dropdown-section">Line height</div>
@@ -2127,8 +2892,9 @@
             </g>
           </svg>
         </div>
-        <div class="empty-title">A quiet place to read.</div>
-        <div class="empty-sub">Open a Markdown file and let the words breathe. Designed for long, comfortable reading sessions.</div>
+        <div class="empty-eyebrow">CARTA · Markdown Reader</div>
+        <div class="empty-title">A quiet place to <em>read</em>.</div>
+        <div class="empty-sub">Open a Markdown file and let the words breathe — typeset on warm paper for long, comfortable reading sessions.</div>
         <div class="drop-zone" id="dropZone" role="button" tabindex="0">
           <p><strong>Drop a file here</strong> &nbsp;·&nbsp; or click to browse</p>
         </div>
@@ -2664,6 +3430,70 @@ renderer.listitem = function(item) {
 
 marked.use({ renderer });
 
+// ═══════════ FOOTNOTES ═══════════
+// marked/GFM does not support footnotes natively, so [^id] references and
+// [^id]: definitions used to render as raw text. This extension parses both,
+// numbers references by order of appearance, and the section is appended after
+// parse (see buildFootnotesHTML) with backlinks.
+const fnState = { order: [], defs: {}, refCount: {} };
+function resetFootnotes() {
+  fnState.order = [];
+  fnState.defs = {};
+  fnState.refCount = {};
+}
+marked.use({
+  extensions: [
+    {
+      // Block-level definition: [^id]: text  (plus indented continuation lines)
+      name: 'footnoteDef',
+      level: 'block',
+      start(src) { const m = /^\[\^[^\]\s]+\]:/m.exec(src); return m ? m.index : undefined; },
+      tokenizer(src) {
+        const cap = /^\[\^([^\]\s]+)\]:[ \t]*([^\n]*(?:\n(?:[ \t]+[^\n]*|[ \t]*(?=\n[ \t]+)))*)/.exec(src);
+        if (!cap) return;
+        const id = cap[1];
+        const content = (cap[2] || '').split('\n').map(l => l.replace(/^[ \t]+/, '')).join('\n').trim();
+        fnState.defs[id] = content;
+        return { type: 'footnoteDef', raw: cap[0], id, content };
+      },
+      renderer() { return ''; } // rendered later as a collected section
+    },
+    {
+      // Inline reference: [^id]
+      name: 'footnoteRef',
+      level: 'inline',
+      start(src) { const i = src.indexOf('[^'); return i < 0 ? undefined : i; },
+      tokenizer(src) {
+        const cap = /^\[\^([^\]\s]+)\]/.exec(src);
+        if (!cap) return;
+        const id = cap[1];
+        if (!fnState.order.includes(id)) fnState.order.push(id);
+        fnState.refCount[id] = (fnState.refCount[id] || 0) + 1;
+        return { type: 'footnoteRef', raw: cap[0], id, num: fnState.order.indexOf(id) + 1, refIndex: fnState.refCount[id] };
+      },
+      renderer(t) {
+        const backId = t.refIndex > 1 ? `fnref-${t.id}-${t.refIndex}` : `fnref-${t.id}`;
+        return `<sup class="footnote-ref" id="${backId}"><a href="#fn-${t.id}">${t.num}</a></sup>`;
+      }
+    }
+  ]
+});
+function buildFootnotesHTML() {
+  if (!fnState.order.length) return '';
+  const items = fnState.order.map(id => {
+    const def = fnState.defs[id];
+    let inner = def ? marked.parseInline(def) : '<em>Missing footnote definition.</em>';
+    const count = fnState.refCount[id] || 1;
+    let backs = '';
+    for (let i = 1; i <= count; i++) {
+      const refId = i > 1 ? `fnref-${id}-${i}` : `fnref-${id}`;
+      backs += ` <a href="#${refId}" class="footnote-backref" aria-label="Back to content">\u21A9</a>`;
+    }
+    return `<li id="fn-${id}">${inner}${backs}</li>`;
+  }).join('');
+  return `<section class="footnotes" aria-label="Footnotes"><ol>${items}</ol></section>`;
+}
+
 // ═══════════ MATH PROCESSING ═══════════
 function renderMath(container) {
   if (typeof renderMathInElement === 'undefined') return;
@@ -2745,9 +3575,11 @@ async function loadMarkdown(text, filename, opts = {}) {
   state.currentFrontmatter = frontmatter;
 
   // Parse markdown
+  resetFootnotes();
   let html;
   try {
     html = marked.parse(body);
+    html += buildFootnotesHTML();
   } catch (e) {
     showToast('Could not parse Markdown');
     console.error(e);
@@ -2820,12 +3652,26 @@ async function loadMarkdown(text, filename, opts = {}) {
   // Apply user highlights
   applyHighlights();
 
-  // Animation
+  // Animation — gentle opacity-only fade-in (never moves the text).
+  // Hardened so content is guaranteed visible even if rAF or CSS
+  // transitions are throttled (backgrounded tab / idle frame).
   article.style.opacity = '0';
-  requestAnimationFrame(() => {
+  let _revealed = false;
+  const revealArticle = () => {
+    if (_revealed) return;
+    _revealed = true;
     article.style.transition = 'opacity 0.4s ease';
     article.style.opacity = '1';
-  });
+  };
+  requestAnimationFrame(revealArticle);
+  setTimeout(revealArticle, 80);
+  // Final safety net: if the fade never progressed (no paints), snap visible.
+  setTimeout(() => {
+    if (getComputedStyle(article).opacity !== '1') {
+      article.style.transition = 'none';
+      article.style.opacity = '1';
+    }
+  }, 600);
 
   // Meta info
   const words = body.trim().split(/\s+/).filter(Boolean).length;
@@ -3199,7 +4045,7 @@ $('#fontDec').addEventListener('click', () => {
 // ═══════════ WIDTH ═══════════
 $('#widthToggle').addEventListener('click', () => {
   state.wide = !state.wide;
-  document.documentElement.style.setProperty('--measure', state.wide ? '120ch' : '90ch');
+  document.documentElement.style.setProperty('--measure', state.wide ? '116ch' : '72ch');
   $('#widthToggle').classList.toggle('active', state.wide);
   storage.set(STORAGE_KEYS.wide, state.wide);
 });
@@ -3761,8 +4607,72 @@ $('#brandHome').addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' ') location.reload();
 });
 
-// ═══════════ PRINT ═══════════
-$('#printBtn').addEventListener('click', () => window.print());
+// ═══════════ EXPORT PDF ═══════════
+// Builds a premium, theme-faithful PDF via the browser's Save-as-PDF
+// pipeline.  Before calling window.print() it:
+//   1. Collects every h1–h4 that has an id from the article
+//   2. Creates a #pdf-toc <section> (hidden on-screen, shown in @media print)
+//      with CARTA branding, a "Contents" heading, and one row per heading —
+//      serif title + dotted leader — each an anchor link so PDF viewers
+//      treat them as clickable bookmarks
+//   3. Inserts the TOC before #article
+//   4. Calls window.print(); cleans up on afterprint
+function exportPDF() {
+  const article = document.getElementById('article');
+  if (!article) { window.print(); return; }
+
+  // ── Guard: remove any stale TOC from an interrupted previous call ──
+  const stale = document.getElementById('pdf-toc');
+  if (stale) stale.remove();
+
+  // ── HTML escape helper (headings may contain &, <, >, " ) ──────────
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  // ── 1. Gather headings ──────────────────────────────────────────────
+  const headings = Array.from(article.querySelectorAll('h1,h2,h3,h4'))
+    .filter(h => h.id && h.textContent.trim());
+
+  // ── 2. Build TOC markup ─────────────────────────────────────────────
+  const rows = headings.map(h => {
+    const lvl = parseInt(h.tagName[1], 10);
+    // Strip heading-anchor text (the ¶ / # inline link appended by the renderer)
+    const text = esc(
+      Array.from(h.childNodes)
+        .filter(n => !(n.nodeType === 1 && n.classList.contains('heading-anchor')))
+        .map(n => n.textContent).join('').trim()
+        .replace(/^[#¶\s]+/, '')
+    );
+    return `<li class="pdf-toc-item pdf-toc-h${lvl}">
+      <a class="pdf-toc-link" href="#${esc(h.id)}">
+        <span class="pdf-toc-text">${text}</span>
+        <span class="pdf-toc-dots"></span>
+      </a>
+    </li>`;
+  }).join('');
+
+  // ── 3. Create and inject #pdf-toc ───────────────────────────────────
+  const toc = document.createElement('section');
+  toc.id = 'pdf-toc';
+  toc.setAttribute('aria-hidden', 'true');
+  toc.style.display = 'none'; // hidden on screen; @media print makes it block
+  toc.innerHTML =
+    `<p class="pdf-toc-brand">CARTA</p>` +
+    `<h2 class="pdf-toc-heading">Contents</h2>` +
+    `<ul class="pdf-toc-list">${rows || '<li class="pdf-toc-empty">No section headings found</li>'}</ul>`;
+
+  article.parentNode.insertBefore(toc, article);
+
+  // ── 4. Print and clean up ───────────────────────────────────────────
+  const cleanup = () => {
+    toc.remove();
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  window.print();
+}
+
+$('#printBtn').addEventListener('click', exportPDF);
 
 // ═══════════ KEYBOARD SHORTCUTS ═══════════
 document.addEventListener('keydown', e => {
@@ -3782,7 +4692,7 @@ document.addEventListener('keydown', e => {
   }
   if ((e.metaKey || e.ctrlKey) && (e.key === 'p' || e.key === 'P')) {
     e.preventDefault();
-    window.print();
+    exportPDF();
     return;
   }
 
@@ -3833,7 +4743,7 @@ function init() {
   // Width
   if (storage.get(STORAGE_KEYS.wide) === 'true') {
     state.wide = true;
-    document.documentElement.style.setProperty('--measure', '120ch');
+    document.documentElement.style.setProperty('--measure', '116ch');
     $('#widthToggle').classList.add('active');
   }
 
@@ -4854,7 +5764,7 @@ function exportHtml() {
 <title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${state.theme === 'dark' ? 'github-dark' : 'github'}.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,ital,wght@8..60,0,300..700;8..60,1,400..600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,ital,wght@6..72,0,300..700;6..72,1,300..600&family=Hanken+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400..600&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
 <style>${css}
 ${accentStyle}
 ${customCss}
@@ -4959,7 +5869,7 @@ function baseCommands() {
     { label: 'Open file…', kind: 'action', run: () => $('#fileInput').click() },
     { label: 'Paste Markdown…', kind: 'action', run: openPaste },
     { label: 'Export to HTML', kind: 'action', run: exportHtml },
-    { label: 'Print', kind: 'action', run: () => window.print() },
+    { label: 'Export PDF', kind: 'action', run: exportPDF },
     { label: 'Toggle Split View', kind: 'mode', run: toggleSplit },
     { label: 'Toggle Page-Flip Mode', kind: 'mode', run: togglePageFlip },
     { label: 'Toggle Zen Mode', kind: 'mode', run: toggleZen },
@@ -5169,7 +6079,7 @@ function initV4() {
   $('#opt-wide').addEventListener('click', () => { $('#widthToggle').click(); markOpt('opt-wide', state.wide); });
   $('#opt-readaloud').addEventListener('click', () => $('#ttsToggle').click());
   $('#opt-bm').addEventListener('click', () => { renderBookmarksPanel(); openDrawer('bookmarks-drawer'); });
-  $('#opt-print').addEventListener('click', () => window.print());
+  $('#opt-print').addEventListener('click', exportPDF);
   $('#opt-customcss').addEventListener('click', () => openModal('customcss-modal'));
 
   // ── topbar buttons ──
@@ -5297,6 +6207,358 @@ initV4();
 
 
 init();
+</script>
+
+<!-- ═══════════ PREMIUM MOTION ENHANCEMENTS (isolated, non-breaking) ═══════════ -->
+<script>
+(function () {
+  'use strict';
+  const prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Enable CSS-gated motion only after first paint so nothing flashes on load.
+  requestAnimationFrame(() => document.body.classList.add('motion-ready'));
+
+  const article = document.getElementById('article');
+
+  // ── Section heading gilt-bars draw themselves in as they scroll into view ──
+  let headingObserver = null;
+  if ('IntersectionObserver' in window && !prefersReduced) {
+    headingObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('bar-in');
+          headingObserver.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.1 });
+  }
+
+  function observeHeadings() {
+    if (!article) return;
+    article.querySelectorAll('h2:not([data-bar-seen])').forEach((h) => {
+      h.setAttribute('data-bar-seen', '1');
+      if (headingObserver) {
+        // already on screen? reveal immediately; otherwise observe.
+        const r = h.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) h.classList.add('bar-in');
+        else headingObserver.observe(h);
+      } else {
+        h.classList.add('bar-in');
+      }
+    });
+  }
+
+  // Re-scan whenever the article content changes (new document loaded, etc.)
+  if (article) {
+    let scanQueued = false;
+    const mo = new MutationObserver(() => {
+      if (scanQueued) return;
+      scanQueued = true;
+      requestAnimationFrame(() => { scanQueued = false; observeHeadings(); });
+    });
+    mo.observe(article, { childList: true, subtree: true });
+    observeHeadings();
+  }
+
+  // ── Copy / table-copy buttons: a satisfying pop on activation ──
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest(
+      '.copy-btn, .code-tools button[data-act="copy"], .table-tools button[data-act="copy"], .table-tools button[data-act="csv"]'
+    );
+    if (!btn) return;
+    btn.classList.remove('copied');
+    // force reflow so the animation can replay on repeated clicks
+    void btn.offsetWidth;
+    btn.classList.add('copied');
+    setTimeout(() => btn.classList.remove('copied'), 900);
+  }, true);
+
+  // ── Magnetic primary action: the Open-file button leans toward the cursor ──
+  if (!prefersReduced) {
+    const upload = document.querySelector('.upload-btn');
+    if (upload) {
+      const STRENGTH = 0.28, MAX = 5;
+      upload.addEventListener('mousemove', (e) => {
+        const r = upload.getBoundingClientRect();
+        let dx = (e.clientX - (r.left + r.width / 2)) * STRENGTH;
+        let dy = (e.clientY - (r.top + r.height / 2)) * STRENGTH;
+        dx = Math.max(-MAX, Math.min(MAX, dx));
+        dy = Math.max(-MAX, Math.min(MAX, dy));
+        upload.classList.add('magnetic');
+        upload.style.transform = `translate(${dx}px, ${dy}px)`;
+      });
+      upload.addEventListener('mouseleave', () => {
+        upload.classList.remove('magnetic');
+        upload.style.transform = '';
+      });
+    }
+  }
+})();
+</script>
+
+<!-- ═══════════ HOME LOGO · THE FLOCK (character ⇄ bird) ═══════════ -->
+<script>
+(function () {
+  'use strict';
+  const reduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const mark  = document.querySelector('#empty-state .empty-mark');
+  const svg   = mark && mark.querySelector('svg');
+  const title = document.querySelector('#empty-state .empty-title');
+  if (!mark || !svg || !title) return; // only exists on the home screen
+
+  const VB_W = 295; // viewBox width of the monogram
+  const glyphEls = Array.from(svg.querySelectorAll('text'));
+
+  // Flock overlay (fixed, full-viewport, never intercepts clicks)
+  const flock = document.createElement('div');
+  flock.id = 'carta-flock';
+  document.body.appendChild(flock);
+
+  let state = 'idle';            // idle · busy · scattered
+  let lastScatter = [];          // per-glyph exit vectors (for continuity)
+
+  const rand  = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // Snapshot each glyph's on-screen centre + pixel size (rects valid even
+  // while the parent svg is faded out — layout is preserved).
+  function measureGlyphs() {
+    const scale = svg.getBoundingClientRect().width / VB_W;
+    return glyphEls.map((el) => {
+      const r = el.getBoundingClientRect();
+      const fs = parseFloat(el.getAttribute('font-size')) || 44;
+      return {
+        ch: el.textContent,
+        cx: r.left + r.width / 2,
+        cy: r.top + r.height / 2,
+        px: Math.max(9, fs * scale),
+      };
+    });
+  }
+
+  const base = (x, y, rot, sc) =>
+    `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${rot}deg) scale(${sc})`;
+
+  // ── Crow silhouette — 200×120 viewBox, aspect 1.667 ─────────────────────
+  //
+  //  Anatomy (bird flies RIGHT, head on right, tail on left):
+  //
+  //   crow-wb  far  wing  neutral: horizontal, tip at (4,66).
+  //            pivot (112,62) → transform-origin: 56% 51.7%
+  //            rotate(+28)→ tip y≈8  (UP)   rotate(−28)→ tip y≈120 (DOWN)
+  //
+  //   Tail     fan extending left from body base — crow fan tail shape.
+  //
+  //   Body     chunky rounded torso x≈90–162, y≈44–78.
+  //
+  //   Head     large circle cx=152 cy=50 r=18 (crow: big head).
+  //
+  //   Beak     slightly hooked right-pointing wedge emerging from head.
+  //
+  //   crow-wn  near wing  neutral: swept upper-left, tip at (4,27).
+  //            pivot (112,51) → transform-origin: 56% 42.5%
+  //            rotate(+30)→ tip y≈−24 (UP, off-screen top, overflow:visible)
+  //            rotate(−32)→ tip y≈88  (DOWN, below body)
+  //
+  //  Near wing DOWN + far wing UP = both tips visible on opposite sides
+  //  of the body → the classic crow deep-flap cross-silhouette.
+  const CROW_ASPECT = 1.667;
+  function birdSprite(px) {
+    const el = document.createElement('div');
+    el.className = 'flyer-bird';
+    const h = px * 1.95, w = h * CROW_ASPECT;
+    el.style.width  = w.toFixed(1) + 'px';
+    el.style.height = h.toFixed(1) + 'px';
+    el.innerHTML =
+      '<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      // Far wing — horizontal in neutral, opposite phase, depth-haze opacity
+      '<g class="crow-wb" style="transform-origin:56% 51.7%">' +
+        '<path d="M112 58 C92 64 64 72 38 76 C22 78 6 76 4 70' +
+              ' C4 64 8 60 16 58 C28 56 52 56 78 58 C96 60 106 62 112 66 Z"' +
+              ' opacity="0.55"/>' +
+      '</g>' +
+      // Tail — fan shape, wider at tip than at root (crow square fan tail)
+      '<path d="M88 54 C72 52 50 46 26 48 C14 50 8 56 10 64' +
+            ' C12 72 20 76 30 74 C50 72 70 68 88 66 Z"/>' +
+      // Body — chunky rounded crow torso
+      '<path d="M90 56 C104 46 128 44 148 50 C158 54 162 62 158 70' +
+            ' C152 76 132 78 112 74 C96 70 90 64 90 56 Z"/>' +
+      // Head — large (crow characteristic big-headed silhouette)
+      '<circle cx="152" cy="50" r="18"/>' +
+      // Beak — slightly hooked crow beak pointing right
+      '<path d="M166 41 C180 38 196 46 194 54 C192 58 178 60 166 58 Z"/>' +
+      // Near wing — main, full opacity, broad paddle shape
+      // Chord at midspan ≈ 26 SVG units (22 % of viewBox height) — visibly wide
+      '<g class="crow-wn" style="transform-origin:56% 42.5%">' +
+        '<path d="M112 46 C92 36 64 24 38 20 C22 17 6 19 4 27' +
+              ' C4 36 8 42 16 46 C28 50 52 54 78 56 C96 56 106 56 112 56 Z"/>' +
+      '</g>' +
+      '</svg>';
+    return el;
+  }
+
+  function makeFlyer(g, showBird, vec) {
+    const el = document.createElement('div');
+    el.className = 'flyer';
+    el.style.left = g.cx + 'px';
+    el.style.top  = g.cy + 'px';
+    el.style.setProperty('--flap', rand(0.62, 0.92).toFixed(3) + 's');
+
+    const char = document.createElement('span');
+    char.className = 'flyer-char';
+    char.textContent = g.ch;
+    char.style.fontSize = g.px + 'px';
+
+    const bird = birdSprite(g.px);
+
+    if (showBird) {
+      char.style.opacity = '0';
+      el.style.transform = base(vec.dx, vec.dy, vec.bank, 0.36);
+    } else {
+      bird.style.opacity = '0';
+      el.style.transform = base(0, 0, 0, 1);
+    }
+    el.append(char, bird);
+    flock.appendChild(el);
+    return { el, char, bird };
+  }
+
+  // A random point well beyond a screen edge, relative to the glyph.
+  function exitVector(g) {
+    const vw = innerWidth, vh = innerHeight, m = 160;
+    const edge = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
+    let dx = 0, dy = 0;
+    if (edge === 'left')  { dx = -(g.cx + m + rand(0, 280)); dy = rand(-0.5, 0.5) * vh; }
+    if (edge === 'right') { dx = (vw - g.cx) + m + rand(0, 280); dy = rand(-0.5, 0.5) * vh; }
+    if (edge === 'top')   { dy = -(g.cy + m + rand(0, 220)); dx = rand(-0.5, 0.5) * vw; }
+    if (edge === 'bottom'){ dy = (vh - g.cy) + m + rand(0, 220); dx = rand(-0.5, 0.5) * vw; }
+    return { dx, dy, bank: clamp((dx / vw) * 20, -13, 13) + rand(-5, 5) };
+  }
+
+  // Two waypoints offset perpendicularly to the flight direction → a gentle
+  // arc instead of a straight line.  bendA (≈10–24 % of flight distance) is
+  // applied at 28 % of the journey; bendB (≈4–12 %) at 62 %.  The side is
+  // randomised per bird so paths diverge naturally.
+  function flightPath(x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len, ny = dx / len;            // unit perpendicular
+    const side  = Math.random() < 0.5 ? 1 : -1;
+    const bendA = len * (0.10 + Math.random() * 0.14) * side;
+    const bendB = len * (0.04 + Math.random() * 0.08) * side;
+    return [
+      { x: x1 + dx * 0.28 + nx * bendA, y: y1 + dy * 0.28 + ny * bendA },
+      { x: x1 + dx * 0.62 + nx * bendB, y: y1 + dy * 0.62 + ny * bendB },
+    ];
+  }
+
+  // ── Scatter: glyphs become birds and fly off ──
+  function scatter() {
+    if (state !== 'idle') return;
+    state = 'busy';
+    document.body.classList.add('flock-active');
+    const glyphs = measureGlyphs();
+    mark.classList.add('is-hidden');
+
+    if (reduced) { state = 'scattered'; return; }
+
+    lastScatter = [];
+    const flights = glyphs.map((g, i) => {
+      const vec = exitVector(g);
+      lastScatter[i] = vec;
+      const f = makeFlyer(g, false);
+      const delay = i * 55;
+
+      f.char.animate(
+        [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.55)' }],
+        { duration: 300, delay, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' }
+      );
+      f.bird.animate(
+        [{ opacity: 0, transform: 'scale(.3) rotate(-14deg)' },
+         { opacity: 1, transform: 'scale(1) rotate(0deg)' }],
+        { duration: 340, delay, easing: 'cubic-bezier(.2,1.5,.4,1)', fill: 'forwards' }
+      );
+      setTimeout(() => f.el.classList.add('flapping'), delay + 130);
+
+      const pts = flightPath(0, 0, vec.dx, vec.dy);
+      const flight = f.el.animate(
+        [
+          { transform: base(0, 0, 0, 1),                                 opacity: 1, offset: 0 },
+          { transform: base(pts[0].x, pts[0].y, vec.bank * 0.38, 0.94), opacity: 1, offset: 0.28 },
+          { transform: base(pts[1].x, pts[1].y, vec.bank * 0.72, 0.76), opacity: 1, offset: 0.62 },
+          { transform: base(vec.dx, vec.dy, vec.bank, 0.36),             opacity: 0, offset: 1 },
+        ],
+        { duration: rand(1100, 1650), delay: delay + 175, easing: 'cubic-bezier(0.4,0,0.65,0.85)', fill: 'forwards' }
+      );
+      return flight.finished;
+    });
+
+    Promise.allSettled(flights).then(() => {
+      flock.replaceChildren();
+      state = 'scattered';
+    });
+  }
+
+  // ── Reform: the flock returns and rebuilds the monogram ──
+  function reform() {
+    if (state !== 'scattered') return;
+    state = 'busy';
+    const glyphs = measureGlyphs();
+
+    if (reduced) {
+      mark.classList.remove('is-hidden');
+      document.body.classList.remove('flock-active');
+      state = 'idle';
+      return;
+    }
+
+    const lands = glyphs.map((g, i) => {
+      const vec = lastScatter[i] || exitVector(g);
+      const f = makeFlyer(g, true, vec);
+      f.el.classList.add('flapping');
+      const delay = i * 50;
+
+      const pts = flightPath(vec.dx, vec.dy, 0, 0);
+      const flight = f.el.animate(
+        [
+          { transform: base(vec.dx, vec.dy, vec.bank, 0.36),             opacity: 0, offset: 0 },
+          { transform: base(pts[0].x, pts[0].y, vec.bank * 0.72, 0.76), opacity: 1, offset: 0.38 },
+          { transform: base(pts[1].x, pts[1].y, vec.bank * 0.38, 0.94), opacity: 1, offset: 0.72 },
+          { transform: base(0, 0, 0, 1),                                 opacity: 1, offset: 1 },
+        ],
+        { duration: rand(1100, 1500), delay, easing: 'cubic-bezier(0.25,0.4,0.4,1)', fill: 'forwards' }
+      );
+
+      return flight.finished.then(() => {
+        f.el.classList.remove('flapping');
+        f.bird.animate(
+          [{ opacity: 1, transform: 'scale(1) rotate(0deg)' },
+           { opacity: 0, transform: 'scale(.3) rotate(12deg)' }],
+          { duration: 240, easing: 'ease-in', fill: 'forwards' }
+        );
+        return f.char.animate(
+          [{ opacity: 0, transform: 'scale(1.5)' }, { opacity: 1, transform: 'scale(1)' }],
+          { duration: 300, delay: 70, easing: 'cubic-bezier(.2,1.5,.4,1)', fill: 'forwards' }
+        ).finished;
+      });
+    });
+
+    Promise.allSettled(lands).then(() => {
+      mark.classList.remove('is-hidden'); // real monogram takes over beneath
+      requestAnimationFrame(() => {
+        flock.replaceChildren();
+        document.body.classList.remove('flock-active');
+        state = 'idle';
+      });
+    });
+  }
+
+  mark.addEventListener('mouseenter', scatter);
+  title.addEventListener('mouseenter', reform);
+})();
 </script>
 </body>
 </html>
