@@ -1193,25 +1193,90 @@
     .table-tools, .tts-word-active { display: none !important; }
 
     /* ── Collapse shell to bare article ── */
-    html { background: var(--bg) !important; }
+    html { overflow: visible !important; }
     body {
       background: var(--bg) !important;
       color: var(--ink) !important;
       font-size: 11pt !important;
       margin: 0 !important; padding: 0 !important;
+      min-height: 0 !important; height: auto !important;
+      overflow: visible !important;
     }
-    #shell     { display: block !important; margin-top: 0 !important; }
-    #main-area { padding: 0 !important; max-width: 100% !important;
-                 display: block !important; min-height: 0 !important; }
+    #shell {
+      display: block !important;
+      margin-top: 0 !important;
+      overflow: visible !important;
+    }
+    #main-area {
+      padding: 0 !important;
+      width: 100% !important; max-width: 100% !important;
+      display: block !important;
+      min-height: 0 !important; height: auto !important;
+      overflow: visible !important;
+    }
 
-    /* Article: flat on the page — no card shadow, no radius, no decorative border */
+    /* Article: full printable width, auto height, no card chrome, no transforms */
     #article {
-      max-width: 100% !important; padding: 0 !important;
+      width: 100% !important; max-width: 100% !important;
+      height: auto !important; max-height: none !important;
+      padding: 0 !important;
+      /* Override the JS-set inline font-size (18px on screen → readable 10.5pt on paper) */
+      font-size: 10.5pt !important;
       border: none !important; border-radius: 0 !important;
       box-shadow: none !important; background: transparent !important;
-      animation: none !important;
+      animation: none !important; transition: none !important;
+      overflow: visible !important;
+      /* Reset CSS columns (set by page-flip mode) */
+      column-count: 1 !important; column-width: auto !important;
+      column-gap: normal !important; column-fill: auto !important;
+      /* Reset transforms (page-flip translate, fade-up animation) */
+      transform: none !important;
     }
     #article::before   { display: none !important; } /* binding-edge gilt line: card-only decoration */
+
+    /* ── Undo page-flip CSS columns — the primary source of page cropping ──
+       body.page-flip sets overflow:hidden on #main-area and a fixed column
+       height on #article; that makes the print engine capture each column
+       as a clipped slice instead of letting content flow across pages.     */
+    body.page-flip #main-area {
+      overflow: visible !important; padding: 0 !important;
+    }
+    body.page-flip #article {
+      height: auto !important; max-height: none !important;
+      column-count: 1 !important; column-width: auto !important;
+      column-gap: normal !important; column-fill: auto !important;
+      transform: none !important;
+      width: 100% !important; max-width: 100% !important;
+      overflow: visible !important;
+    }
+
+    /* ── Undo split-view offset (50% margin-left misaligns the printed page) */
+    body.split #main-area { margin-left: 0 !important; width: 100% !important; }
+    body.split #split-editor { display: none !important; }
+
+    /* ── Code blocks: wrap long lines — no horizontal scrolling in print ── */
+    #article pre {
+      overflow: visible !important;
+      white-space: pre-wrap !important;
+    }
+    #article pre code {
+      overflow: visible !important;
+      white-space: pre-wrap !important;
+      word-break: break-word !important;
+      font-size: 9pt !important;
+    }
+
+    /* ── Tables: switch back to table display, no scroll clip ── */
+    #article table {
+      display: table !important;
+      overflow: visible !important;
+      width: 100% !important; max-width: 100% !important;
+    }
+    #article .table-wrap { overflow: visible !important; }
+
+    /* ── KaTeX / mermaid: no scroll clip ── */
+    .katex-display { overflow: visible !important; }
+    .mermaid-container { overflow: visible !important; }
 
     /* HR: cascade from the main theme already shows the correct ❧ gilt
        asterism; we only need to guarantee no background bleed in print. */
@@ -4625,7 +4690,20 @@ function exportPDF() {
   const stale = document.getElementById('pdf-toc');
   if (stale) stale.remove();
 
-  // ── HTML escape helper (headings may contain &, <, >, " ) ──────────
+  // ── Temporarily deactivate modes that corrupt print pagination ─────────
+  // Page-flip: CSS columns + fixed height on #article → print engine slices
+  //   content into viewport-height columns and clips every one.
+  // Split view: 50% margin-left on #main-area → printed content is off-page.
+  const wasPageFlip = state.pageFlip;
+  const wasSplit    = state.splitView;
+  if (wasPageFlip) {
+    document.body.classList.remove('page-flip');
+    // Clear inline styles set by setupPageFlip()
+    ['width', 'columnWidth', 'columnGap', 'height', 'transform'].forEach(p => article.style[p] = '');
+  }
+  if (wasSplit) document.body.classList.remove('split');
+
+  // ── HTML escape helper (headings may contain &, <, >, ") ──────────────
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
                      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -4636,7 +4714,6 @@ function exportPDF() {
   // ── 2. Build TOC markup ─────────────────────────────────────────────
   const rows = headings.map(h => {
     const lvl = parseInt(h.tagName[1], 10);
-    // Strip heading-anchor text (the ¶ / # inline link appended by the renderer)
     const text = esc(
       Array.from(h.childNodes)
         .filter(n => !(n.nodeType === 1 && n.classList.contains('heading-anchor')))
@@ -4655,7 +4732,7 @@ function exportPDF() {
   const toc = document.createElement('section');
   toc.id = 'pdf-toc';
   toc.setAttribute('aria-hidden', 'true');
-  toc.style.display = 'none'; // hidden on screen; @media print makes it block
+  toc.style.display = 'none'; // hidden on screen; @media print reveals it
   toc.innerHTML =
     `<p class="pdf-toc-brand">CARTA</p>` +
     `<h2 class="pdf-toc-heading">Contents</h2>` +
@@ -4666,6 +4743,12 @@ function exportPDF() {
   // ── 4. Print and clean up ───────────────────────────────────────────
   const cleanup = () => {
     toc.remove();
+    // Restore deactivated modes
+    if (wasPageFlip) {
+      document.body.classList.add('page-flip');
+      setTimeout(setupPageFlip, 50);
+    }
+    if (wasSplit) document.body.classList.add('split');
     window.removeEventListener('afterprint', cleanup);
   };
   window.addEventListener('afterprint', cleanup);
