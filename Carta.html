@@ -1190,7 +1190,19 @@
     #minimap, #annotation-layer, .side-drawer, .modal-overlay,
     .copy-btn, .heading-anchor, .footnote-popover,
     #bookmarkBtn, #widthToggle, #focusToggle, #ttsToggle, #printBtn,
-    .table-tools, .tts-word-active { display: none !important; }
+    #zen-exit, #autoscroll-bar, #pageflip-nav, #cmd-palette,
+    #glossary-tip, #split-editor, .collapse-toggle, .feather,
+    .table-tools { display: none !important; }
+
+    /* TTS word highlight: strip the highlight but KEEP the words —
+       display:none here would silently delete the spoken word from
+       the printed page. */
+    .tts-word, .tts-word-active {
+      background: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+    }
 
     /* ── Collapse shell to bare article ── */
     html { overflow: visible !important; }
@@ -2665,10 +2677,78 @@
     body.motion-ready #article h2::after { width: 38px !important; transition: none !important; }
   }
 
+  /* ════════════════════════════════════════════════════════════════ */
+  /* ═══════════  MICROINTERACTIONS — small, earned moments  ═════════ */
+  /* All movement lives behind prefers-reduced-motion: no-preference.  */
+  /* ════════════════════════════════════════════════════════════════ */
+
+  /* Theme circular reveal (View Transitions): we drive the clip-path
+     ourselves, so the default cross-fade must be disabled. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  ::view-transition-old(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 2; }
+
+  @media (prefers-reduced-motion: no-preference) {
+
+    /* Font-size readout ticks when it changes */
+    #fontSizeDisplay.fs-pop { animation: fsPop 0.32s cubic-bezier(.2,1.4,.4,1); }
+    @keyframes fsPop {
+      0%   { transform: scale(1);    color: inherit; }
+      35%  { transform: scale(1.35); color: var(--accent); }
+      100% { transform: scale(1);    color: inherit; }
+    }
+
+    /* Bookmark button beats once when a bookmark is saved */
+    #bookmarkBtn.bm-pop { animation: bmPop 0.45s cubic-bezier(.2,1.5,.4,1); }
+    #bookmarkBtn.bm-pop svg { fill: var(--accent); stroke: var(--accent); transition: fill .4s ease .45s, stroke .4s ease .45s; }
+    @keyframes bmPop {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.28) rotate(-6deg); }
+      60%  { transform: scale(0.94) rotate(3deg); }
+      100% { transform: scale(1); }
+    }
+
+    /* Progress ring pulses once at each quarter milestone */
+    #progress-ring.ring-pulse { animation: ringPulse 0.65s cubic-bezier(.3,.8,.4,1); }
+    @keyframes ringPulse {
+      0%   { transform: scale(1);    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent); }
+      45%  { transform: scale(1.12); box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 0%, transparent); }
+      100% { transform: scale(1);    box-shadow: 0 0 0 0 transparent; }
+    }
+
+    /* A freshly created highlight settles in with a warm wash */
+    .user-highlight.hl-born { animation: hlBorn 0.8s ease-out; }
+    @keyframes hlBorn {
+      0%   { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 26%, transparent); }
+      100% { box-shadow: inset 0 0 0 999px transparent; }
+    }
+
+    /* Current search match pings as you step through results */
+    #article .search-mark.current { animation: matchPing 0.4s cubic-bezier(.2,.9,.3,1); }
+    @keyframes matchPing {
+      0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+      100% { box-shadow: 0 0 0 7px transparent; }
+    }
+
+    /* Drop zone lifts toward an incoming file */
+    .drop-zone { transition: transform 0.25s cubic-bezier(.3,.8,.4,1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.25s ease; }
+    .drop-zone.dragover { transform: scale(1.022); box-shadow: 0 10px 32px -14px color-mix(in srgb, var(--accent) 35%, transparent); }
+
+    /* Dropdown items breathe slightly on hover */
+    .dropdown-item { transition: background 0.14s ease, padding-left 0.14s ease; }
+    .dropdown-item:hover { padding-left: 14px; }
+  }
+
   /* ════════════════ HOME LOGO · THE FLOCK ════════════════ */
-  /* Hover the monogram → its glyphs become birds and scatter.          */
-  /* Hover the title → the flock returns and reforms the monogram.      */
-  #empty-state .empty-mark { cursor: pointer; }
+  /* Hover the monogram → its glyphs morph into crows and live on as a   */
+  /* real-time murmuration (boids: separation · alignment · cohesion,   */
+  /* a wandering attractor, depth, banking, articulated two-segment     */
+  /* wings driven per-frame).  Hover the title — or the mark zone, or   */
+  /* click it — to call them home: they peel off one by one, flare on   */
+  /* final approach and land back as letters.  The flock auto-returns   */
+  /* after ~17 s and dissolves instantly if a document is opened.       */
+  #empty-state .empty-mark  { cursor: pointer; }
   #empty-state .empty-title { cursor: pointer; }
   /* Freeze the idle float while the flock is in motion so birds land true */
   body.flock-active .empty-mark { animation: none !important; transform: none !important; }
@@ -2679,6 +2759,8 @@
     position: fixed; inset: 0;
     z-index: 240; pointer-events: none; overflow: visible;
   }
+  #carta-flock.dissolving { transition: opacity 0.25s ease; opacity: 0; }
+
   .flyer {
     position: fixed; left: 0; top: 0;
     display: grid; place-items: center;
@@ -2691,25 +2773,6 @@
     line-height: 1; white-space: pre;
     will-change: opacity, transform;
   }
-  /* ── Crow silhouette — inline SVG, no external assets ──────────────────
-     Colour: CSS currentColor → var(--accent), auto-tints all four themes.
-     ViewBox 200 × 120 (aspect 1.667).
-
-     Anatomy:  head right, tail left, bird flies RIGHT.
-       crow-wn  near wing  — broad paddle, upper-left in neutral
-                pivot (112,51) → transform-origin: 56% 42.5%
-       crow-wb  far  wing  — horizontal in neutral, opposite phase
-                pivot (112,62) → transform-origin: 56% 51.7%
-     transform-box:view-box makes % values address SVG user-unit space.
-
-     Phase geometry (CSS clockwise = +deg):
-       Near wing tip rests upper-left of pivot.  rotate(+30) moves it
-       further up (upstroke); rotate(−32) sweeps it down (downstroke).
-       Far wing is exactly opposite-phase so one tip is always visible
-       above AND one below the body → classic deep-flap crow silhouette.
-     Timing: downstroke (42 % of cycle) faster than upstroke — matches
-       the power-phase mechanics of real crow flight. */
-
   .flyer-bird {
     grid-area: 1 / 1;
     color: var(--accent);
@@ -2721,29 +2784,21 @@
     display: block;
     fill: currentColor;
   }
-  /* transform-box:view-box → transform-origin % relative to 200×120 viewBox */
-  .flyer-bird .crow-wn,
-  .flyer-bird .crow-wb { transform-box: view-box; }
+  /* Wing & tail segments are posed per-frame from JS.
+     transform-box: view-box → transform-origin px values address
+     SVG user units of the 240×150 viewBox. */
+  .flyer-bird .w-far, .flyer-bird .w-fh,
+  .flyer-bird .w-arm, .flyer-bird .w-hand,
+  .flyer-bird .c-tail { transform-box: view-box; will-change: transform; }
 
-  .flyer.flapping .flyer-bird .crow-wn {
-    animation: flapNear var(--flap, 0.70s) ease-in-out infinite;
+  /* Drifting feather puff on takeoff / landing */
+  .feather {
+    position: fixed; left: 0; top: 0;
+    width: 9px; height: 9px;
+    color: var(--accent); opacity: 0;
+    pointer-events: none; will-change: transform, opacity;
   }
-  .flyer.flapping .flyer-bird .crow-wb {
-    animation: flapBack  var(--flap, 0.70s) ease-in-out infinite;
-  }
-  /* Near wing: starts UP (+30°), powers DOWN (−32°) in 42 % of cycle,
-     then recovers slowly back UP over the remaining 58 %. */
-  @keyframes flapNear {
-    0%   { transform: rotate(30deg);  animation-timing-function: cubic-bezier(0.30,0,0.45,1); }
-    42%  { transform: rotate(-32deg); animation-timing-function: cubic-bezier(0.55,0,0.70,1); }
-    100% { transform: rotate(30deg); }
-  }
-  /* Far wing: exact opposite phase, slightly smaller arc (depth). */
-  @keyframes flapBack {
-    0%   { transform: rotate(-28deg); animation-timing-function: cubic-bezier(0.30,0,0.45,1); }
-    42%  { transform: rotate(28deg);  animation-timing-function: cubic-bezier(0.55,0,0.70,1); }
-    100% { transform: rotate(-28deg); }
-  }
+  .feather svg { width: 100%; height: 100%; fill: currentColor; overflow: visible; }
 
 </style>
 </head>
@@ -2837,6 +2892,8 @@
         <button class="dropdown-item" id="opt-bm">Bookmarks…</button>
         <button class="dropdown-item" id="opt-paste">Paste Markdown…</button>
         <button class="dropdown-item" id="opt-export">Export to HTML…</button>
+        <button class="dropdown-item" id="opt-exportmd">Save Markdown…</button>
+        <button class="dropdown-item" id="opt-copymd">Copy Markdown</button>
         <button class="dropdown-item" id="opt-stats">Document Statistics…</button>
         <button class="dropdown-item" id="opt-print">Export PDF…</button>
         <button class="dropdown-item" id="opt-shortcuts">Keyboard Shortcuts (?)</button>
@@ -3603,18 +3660,25 @@ function initMermaid() {
   } catch (e) { console.warn('Mermaid init failed:', e); }
 }
 
-async function renderMermaidDiagrams(container) {
+async function renderMermaidDiagrams(container, force = false) {
   if (typeof mermaid === 'undefined') return;
   initMermaid();
-  const diagrams = container.querySelectorAll('.mermaid-container[data-mermaid-source]');
+  // The source is kept on the element (not stripped after rendering) so
+  // diagrams can be re-rendered when the theme changes. `force` re-renders
+  // already-rendered diagrams; ids are regenerated per render because
+  // mermaid requires a unique id each call.
+  const sel = force
+    ? '.mermaid-container[data-mermaid-source]'
+    : '.mermaid-container[data-mermaid-source]:not([data-mermaid-rendered])';
+  const diagrams = container.querySelectorAll(sel);
   for (const el of diagrams) {
     const src = el.dataset.mermaidSource;
-    const id = el.dataset.mermaidId;
+    const id = 'mermaid-' + Math.random().toString(36).slice(2, 9);
     if (!src) continue;
     try {
       const { svg } = await mermaid.render(id, src);
       el.innerHTML = svg;
-      el.removeAttribute('data-mermaid-source');
+      el.setAttribute('data-mermaid-rendered', '1');
     } catch (e) {
       el.innerHTML = `<pre style="text-align:left;color:var(--caution)">Mermaid error: ${escapeHtml(e.message || 'unknown')}</pre>`;
     }
@@ -3702,10 +3766,11 @@ async function loadMarkdown(text, filename, opts = {}) {
     a.addEventListener('click', e => {
       e.preventDefault();
       const url = window.location.href.split('#')[0] + a.getAttribute('href');
-      try {
-        navigator.clipboard.writeText(url);
-        showToast('Link copied');
-      } catch {}
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url)
+          .then(() => showToast('Link copied'))
+          .catch(() => {});
+      }
       // Also scroll
       const target = document.querySelector(a.getAttribute('href'));
       if (target) {
@@ -4097,7 +4162,14 @@ $('#back-to-top').addEventListener('click', () => {
 // ═══════════ FONT SIZE ═══════════
 function updateFontSize() {
   $('#article').style.fontSize = state.fontSize + 'px';
-  $('#fontSizeDisplay').textContent = state.fontSize;
+  const disp = $('#fontSizeDisplay');
+  const changed = disp.textContent !== String(state.fontSize);
+  disp.textContent = state.fontSize;
+  if (changed) {
+    disp.classList.remove('fs-pop');
+    void disp.offsetWidth;                 // restart the animation
+    disp.classList.add('fs-pop');
+  }
   storage.set(STORAGE_KEYS.font, state.fontSize);
 }
 $('#fontInc').addEventListener('click', () => {
@@ -4166,10 +4238,15 @@ function applyTheme(t) {
     : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
   if (hlSheet && hlSheet.href !== newHref) hlSheet.href = newHref;
 
-  // Update mermaid theme (re-render any existing diagrams)
+  // Update mermaid theme and re-render any existing diagrams so they
+  // don't keep the previous theme's palette
   if (mermaidInitialized && typeof mermaid !== 'undefined') {
     try {
       mermaid.initialize({ startOnLoad: false, theme: t === 'dark' ? 'dark' : 'default', securityLevel: 'strict', fontFamily: 'inherit' });
+      const art = document.getElementById('article');
+      if (art && art.querySelector('.mermaid-container[data-mermaid-rendered]')) {
+        renderMermaidDiagrams(art, true).catch(e => console.warn(e));
+      }
     } catch {}
   }
 
@@ -4178,6 +4255,29 @@ function applyTheme(t) {
 
   // v4 hook: let enhancements react to theme change
   try { if (typeof afterThemeChange === 'function') afterThemeChange(t); } catch {}
+}
+
+// ═══════════ THEME TRANSITION — circular reveal ═══════════
+// The new theme sweeps across the page as an expanding circle from the
+// click point (View Transitions API). Falls back to an instant switch on
+// unsupported browsers and under prefers-reduced-motion.
+let themeVtBusy = false;
+function applyThemeAnimated(t, origin) {
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (t === state.theme) return;
+  if (!document.startViewTransition || reduce || themeVtBusy) { applyTheme(t); return; }
+  themeVtBusy = true;
+  let x = origin && Number.isFinite(origin.x) ? origin.x : innerWidth - 70;
+  let y = origin && Number.isFinite(origin.y) ? origin.y : 30;
+  const vt = document.startViewTransition(() => applyTheme(t));
+  vt.ready.then(() => {
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.documentElement.animate(
+      { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)'] },
+      { duration: 460, easing: 'cubic-bezier(.3,.7,.3,1)', pseudoElement: '::view-transition-new(root)' }
+    );
+  }).catch(() => {});
+  vt.finished.then(() => { themeVtBusy = false; }).catch(() => { themeVtBusy = false; });
 }
 
 // ═══════════ FONT FAMILY ═══════════
@@ -4210,7 +4310,7 @@ document.addEventListener('click', e => {
     settingsMenu.classList.remove('open');
   }
 });
-$$('.theme-opt').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.theme)));
+$$('.theme-opt').forEach(b => b.addEventListener('click', e => applyThemeAnimated(b.dataset.theme, { x: e.clientX, y: e.clientY })));
 $$('.font-opt').forEach(b => b.addEventListener('click', () => applyFontFamily(b.dataset.font)));
 
 // ═══════════ SEARCH ═══════════
@@ -4458,6 +4558,14 @@ document.addEventListener('mouseup', () => {
         swatch.onclick = () => {
           saveHighlight(text, swatch.dataset.color);
           applyHighlights();
+          // one-shot shimmer on the newly created highlight
+          $$('#article .user-highlight').forEach(el => {
+            if (el.textContent === text && !el.dataset.born) {
+              el.dataset.born = '1';
+              el.classList.add('hl-born');
+              el.addEventListener('animationend', () => el.classList.remove('hl-born'), { once: true });
+            }
+          });
           toolbar.classList.remove('visible');
           sel.removeAllRanges();
           showToast('Highlight saved');
@@ -4703,6 +4811,13 @@ function exportPDF() {
   }
   if (wasSplit) document.body.classList.remove('split');
 
+  // ── Temporarily expand collapsed sections — a printed document silently
+  //    missing whole sections is data loss. Restored after printing. ──
+  const collapsedHeads = Array.from(article.querySelectorAll('.collapsed'));
+  const collapsedEls   = Array.from(article.querySelectorAll('.collapsed-hidden'));
+  collapsedHeads.forEach(el => el.classList.remove('collapsed'));
+  collapsedEls.forEach(el => el.classList.remove('collapsed-hidden'));
+
   // ── HTML escape helper (headings may contain &, <, >, ") ──────────────
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
                      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -4716,9 +4831,12 @@ function exportPDF() {
     const lvl = parseInt(h.tagName[1], 10);
     const text = esc(
       Array.from(h.childNodes)
-        .filter(n => !(n.nodeType === 1 && n.classList.contains('heading-anchor')))
+        // exclude UI children injected into headings: the ¶ anchor link
+        // and the ▼ collapse toggle (previously leaked into TOC rows)
+        .filter(n => !(n.nodeType === 1 &&
+          (n.classList.contains('heading-anchor') || n.classList.contains('collapse-toggle'))))
         .map(n => n.textContent).join('').trim()
-        .replace(/^[#¶\s]+/, '')
+        .replace(/^[#¶▼\s]+/, '')
     );
     return `<li class="pdf-toc-item pdf-toc-h${lvl}">
       <a class="pdf-toc-link" href="#${esc(h.id)}">
@@ -4743,6 +4861,9 @@ function exportPDF() {
   // ── 4. Print and clean up ───────────────────────────────────────────
   const cleanup = () => {
     toc.remove();
+    // Restore collapsed sections exactly as the reader had them
+    collapsedHeads.forEach(el => el.classList.add('collapsed'));
+    collapsedEls.forEach(el => el.classList.add('collapsed-hidden'));
     // Restore deactivated modes
     if (wasPageFlip) {
       document.body.classList.add('page-flip');
@@ -4784,7 +4905,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if ($('#search-bar').classList.contains('open')) closeSearch();
     if (lightbox.classList.contains('open')) closeLightbox();
-    if (settingsMenu.classList.contains('open')) settingsMenu.classList.remove('open');
+    closeAllMenus();
     return;
   }
   if (e.key === '+' || e.key === '=') { e.preventDefault(); $('#fontInc').click(); }
@@ -4792,9 +4913,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 't' || e.key === 'T') {
     const order = ['light', 'sepia', 'dark', 'high-contrast'];
     const next = order[(order.indexOf(state.theme) + 1) % order.length];
-    applyTheme(next);
+    const sb = $('#settingsBtn');
+    const r = sb ? sb.getBoundingClientRect() : null;
+    applyThemeAnimated(next, r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : undefined);
   }
   if (e.key === 'f' || e.key === 'F') toggleFocusMode();
+  if ((e.key === 'b' || e.key === 'B') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    addBookmarkHere();
+  }
 
   // Section navigation: j/k
   if (e.key === 'j' || e.key === 'k') {
@@ -4865,10 +4991,12 @@ const tabTexts = {};
 let figureCounter = 0;
 let glossaryMap = {};
 let sessionCardShownFor = {};
+let lastRingMilestone = 0;
 
 // ── Master post-render hook ──
 function runEnhancements(article, body, frontmatter, opts) {
   figureCounter = 0;
+  lastRingMilestone = 0;
   enhanceFigures(article);
   enhanceCodeBlocks(article);
   enhanceTables(article);
@@ -5473,10 +5601,25 @@ function onScrollV4() {
   const pct = Math.round(frac * 100);
 
   if (state.ring) {
+    const ring = document.getElementById('progress-ring');
     const fg = document.querySelector('#progress-ring .ring-fg');
     if (fg) fg.style.strokeDashoffset = RING_C * (1 - frac);
     const pe = document.querySelector('#progress-ring .ring-pct');
     if (pe) pe.textContent = pct + '%';
+    if (ring) {
+      // live estimate of reading time remaining
+      const words = (state.currentBody || '').trim().split(/\s+/).filter(Boolean).length;
+      const minsLeft = Math.max(0, Math.ceil((words * (1 - frac)) / 230));
+      ring.title = pct + '% read · ~' + minsLeft + ' min left';
+      // gentle pulse when crossing a quarter milestone (scroll-down only)
+      const milestone = Math.floor(pct / 25);
+      if (milestone > lastRingMilestone && pct > 0 && pct <= 100) {
+        ring.classList.remove('ring-pulse');
+        void ring.offsetWidth;
+        ring.classList.add('ring-pulse');
+      }
+      lastRingMilestone = Math.max(lastRingMilestone, milestone);
+    }
   }
   if (state.minimap) {
     const mm = $('#minimap'); const vp = $('#mm-viewport');
@@ -5669,6 +5812,12 @@ function addBookmarkHere() {
   list.unshift({ id: 'bk-' + Date.now().toString(36), text: label.slice(0, 80), scroll: window.scrollY, date: Date.now() });
   setSavedBookmarks(list);
   renderBookmarksPanel();
+  const bb = $('#bookmarkBtn');
+  if (bb) {
+    bb.classList.remove('bm-pop');
+    void bb.offsetWidth;
+    bb.classList.add('bm-pop');
+  }
   showToast('Bookmark added');
 }
 function renderBookmarksPanel() {
@@ -5834,14 +5983,29 @@ function exportHtml() {
   // strip interactive helpers
   clone.querySelectorAll('.code-tools, .copy-btn, .collapse-toggle, .heading-anchor, .table-tools, .sort-ind, .annotation-marker .anno-del').forEach(el => el.remove());
   clone.querySelectorAll('.search-mark, .annotation-marker').forEach(el => { el.replaceWith(document.createTextNode(el.textContent)); });
-  clone.querySelectorAll('[data-mermaid-source]').forEach(el => el.removeAttribute('data-mermaid-source'));
+  // unwrap reading-aid spans: bionic bolding and TTS word wrappers are
+  // ephemeral aids, not content — exported HTML gets clean text
+  clone.querySelectorAll('.bionic-w, .tts-word, .tts-word-active').forEach(el => { el.replaceWith(document.createTextNode(el.textContent)); });
+  // un-freeze collapsed sections: the toggles are stripped, so anything
+  // left hidden would be unrecoverable in the exported file
+  clone.querySelectorAll('.collapsed').forEach(el => el.classList.remove('collapsed'));
+  clone.querySelectorAll('.collapsed-hidden').forEach(el => el.classList.remove('collapsed-hidden'));
+  clone.classList.remove('bionic');
+  clone.querySelectorAll('[data-mermaid-source]').forEach(el => { el.removeAttribute('data-mermaid-source'); el.removeAttribute('data-mermaid-rendered'); });
   // gather page's own <style> (same-origin, fully readable)
   let css = '';
   document.querySelectorAll('style').forEach(s => { if (s.id !== 'user-custom-css') css += s.textContent + '\n'; });
   const customCss = customCssEl ? customCssEl.textContent : '';
-  const bodyClasses = document.body.className.replace(/\b(zen|split|page-flip|focus-mode|has-tabs)\b/g, '').trim();
+  const bodyClasses = document.body.className.replace(/\b(zen|split|page-flip|focus-mode|has-tabs|flock-active|motion-ready)\b/g, '').trim();
   const accentStyle = state.accent ? `body{--accent:${state.accent};--accent-bg:color-mix(in srgb, ${state.accent} 8%, transparent);}` : '';
+  // Reader typography (line-height, letter/paragraph spacing, column width)
+  // lives in inline custom properties on <html> at runtime — without this
+  // the exported file silently ignored the reader's settings.
+  const rootInline = document.documentElement.getAttribute('style') || '';
+  const rootStyle = rootInline ? `:root{${rootInline}}` : '';
   const title = state.currentFilename.replace(/\.[^.]+$/, '');
+  const safeName = (title.replace(/[\\/:*?"<>|]/g, '-').trim() || 'document');
+  const exportedOn = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
   const doc = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(title)}</title>
@@ -5849,16 +6013,39 @@ function exportHtml() {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,ital,wght@6..72,0,300..700;6..72,1,300..600&family=Hanken+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400..600&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
 <style>${css}
+${rootStyle}
 ${accentStyle}
 ${customCss}
 body{padding:48px 20px;}#article{margin:0 auto;}#main-area{padding:0;}
 .code-line{display:grid;grid-template-columns:auto 1fr;}
+.carta-export-foot{max-width:var(--measure,72ch);margin:64px auto 0;padding-top:18px;border-top:1px solid var(--rule,#e0d7c3);font-family:var(--font-sans,sans-serif);font-size:11.5px;letter-spacing:0.04em;color:var(--ink-4,#9a9181);text-align:center;}
 </style></head>
 <body class="${bodyClasses}">
-<main id="main-area"><article id="article" style="font-size:${state.fontSize}px">${clone.innerHTML}</article></main>
+<main id="main-area"><article id="article" style="font-size:${state.fontSize}px">${clone.innerHTML}</article>
+<footer class="carta-export-foot">Typeset with CARTA &nbsp;·&nbsp; exported ${escapeHtml(exportedOn)}</footer></main>
 </body></html>`;
-  downloadBlob(doc, title + '.html', 'text/html');
+  downloadBlob(doc, safeName + '.html', 'text/html');
   showToast('Exported HTML');
+}
+
+// ═══════════ EXPORT / COPY MARKDOWN ═══════════
+function exportMarkdown() {
+  if (!state.currentDocId || !state.currentText) { showToast('Open a document first'); return; }
+  const base = state.currentFilename.replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|]/g, '-').trim() || 'document';
+  downloadBlob(state.currentText, base + '.md', 'text/markdown');
+  showToast('Markdown saved');
+}
+
+function copyMarkdown() {
+  if (!state.currentDocId || !state.currentText) { showToast('Open a document first'); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(state.currentText)
+      .then(() => showToast('Markdown copied'))
+      .catch(() => { legacyCopy(state.currentText); showToast('Markdown copied'); });
+  } else {
+    legacyCopy(state.currentText);
+    showToast('Markdown copied');
+  }
 }
 
 // ═══════════ ZEN MODE ═══════════
@@ -5952,6 +6139,8 @@ function baseCommands() {
     { label: 'Open file…', kind: 'action', run: () => $('#fileInput').click() },
     { label: 'Paste Markdown…', kind: 'action', run: openPaste },
     { label: 'Export to HTML', kind: 'action', run: exportHtml },
+    { label: 'Save Markdown', kind: 'action', run: exportMarkdown },
+    { label: 'Copy Markdown', kind: 'action', run: copyMarkdown },
     { label: 'Export PDF', kind: 'action', run: exportPDF },
     { label: 'Toggle Split View', kind: 'mode', run: toggleSplit },
     { label: 'Toggle Page-Flip Mode', kind: 'mode', run: togglePageFlip },
@@ -5969,10 +6158,10 @@ function baseCommands() {
     { label: 'Document Statistics', kind: 'action', run: showStatsModal },
     { label: 'Keyboard Shortcuts', kind: 'action', run: () => openModal('shortcuts-modal') },
     { label: 'Custom CSS', kind: 'action', run: () => openModal('customcss-modal') },
-    { label: 'Theme: Light', kind: 'theme', run: () => applyTheme('light') },
-    { label: 'Theme: Sepia', kind: 'theme', run: () => applyTheme('sepia') },
-    { label: 'Theme: Dark', kind: 'theme', run: () => applyTheme('dark') },
-    { label: 'Theme: High Contrast', kind: 'theme', run: () => applyTheme('high-contrast') }
+    { label: 'Theme: Light', kind: 'theme', run: () => applyThemeAnimated('light') },
+    { label: 'Theme: Sepia', kind: 'theme', run: () => applyThemeAnimated('sepia') },
+    { label: 'Theme: Dark', kind: 'theme', run: () => applyThemeAnimated('dark') },
+    { label: 'Theme: High Contrast', kind: 'theme', run: () => applyThemeAnimated('high-contrast') }
   ];
 }
 function buildCmdItems() {
@@ -6047,6 +6236,7 @@ const SHORTCUTS = [
   ['Page-flip: turn page', '← / →'],
   ['Exit mode / close', 'Esc'],
   ['Reading', null],
+  ['Add bookmark here', 'b'],
   ['Read aloud', 'click 🔊'],
   ['Highlight selection', 'select text → swatch'],
   ['Add margin note', 'select text → ✎'],
@@ -6156,6 +6346,8 @@ function initV4() {
   $('#opt-autoscroll').addEventListener('click', () => { $('#autoscroll-bar').classList.contains('visible') ? closeAutoScroll() : openAutoScroll(); });
   $('#opt-paste').addEventListener('click', openPaste);
   $('#opt-export').addEventListener('click', exportHtml);
+  $('#opt-exportmd').addEventListener('click', exportMarkdown);
+  $('#opt-copymd').addEventListener('click', copyMarkdown);
   $('#opt-stats').addEventListener('click', showStatsModal);
   $('#opt-shortcuts').addEventListener('click', () => openModal('shortcuts-modal'));
   $('#opt-focus').addEventListener('click', () => { $('#focusToggle').click(); markOpt('opt-focus', state.focusMode); });
@@ -6380,267 +6572,419 @@ init();
 })();
 </script>
 
-<!-- ═══════════ HOME LOGO · THE FLOCK (character ⇄ bird) ═══════════ -->
+<!-- ═══════════ HOME LOGO · THE FLOCK — murmuration engine ═══════════ -->
 <script>
 (function () {
   'use strict';
+  // The CARTA glyphs become crows. Not on rails — a live boids simulation:
+  // separation / alignment / cohesion around a wandering attractor, with
+  // depth (z), velocity-derived heading, banking from lateral acceleration,
+  // and articulated two-segment wings (arm + lagging hand) posed per frame.
+  // Hover the mark → the flock takes wing and murmurates over the page.
+  // Hover the title (or the mark zone, or click it) → birds peel off one
+  // by one, flare on final approach, and land back as letters.
+  // Safety: auto-recall after ~17 s; instant dissolve if a document loads;
+  // inert under prefers-reduced-motion.
+
   const reduced = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const mark  = document.querySelector('#empty-state .empty-mark');
   const svg   = mark && mark.querySelector('svg');
   const title = document.querySelector('#empty-state .empty-title');
-  if (!mark || !svg || !title) return; // only exists on the home screen
+  if (!mark || !svg || !title || reduced) return;
 
-  const VB_W = 295; // viewBox width of the monogram
-  const glyphEls = Array.from(svg.querySelectorAll('text'));
-
-  // Flock overlay (fixed, full-viewport, never intercepts clicks)
   const flock = document.createElement('div');
   flock.id = 'carta-flock';
+  flock.setAttribute('aria-hidden', 'true');
   document.body.appendChild(flock);
 
-  let state = 'idle';            // idle · busy · scattered
-  let lastScatter = [];          // per-glyph exit vectors (for continuity)
-
+  const TAU = Math.PI * 2;
   const rand  = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp  = (a, b, t) => a + (b - a) * t;
 
-  // Snapshot each glyph's on-screen centre + pixel size (rects valid even
-  // while the parent svg is faded out — layout is preserved).
-  function measureGlyphs() {
-    const scale = svg.getBoundingClientRect().width / VB_W;
-    return glyphEls.map((el) => {
+  let phase = 'idle';          // idle → out (murmuration) → returning → idle
+  let birds = [];
+  let releaseQueue = [];
+  let liveSlots = [];
+  let rafId = null, lastTs = 0, simT = 0, outAt = 0, releaseTimer = 0;
+  const AUTO_RECALL = 17000;
+  const SPEED_MIN = 90, SPEED_MAX = 330;
+
+  // ── Glyph slots, measured live (resize/scroll-proof; the svg viewBox is
+  //    read directly — no hard-coded width). Rects stay valid while the
+  //    monogram is faded out because only opacity changes. ──
+  function glyphSlots() {
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    const scale = svg.getBoundingClientRect().width / ((vb && vb.width) || 290);
+    return Array.from(svg.querySelectorAll('text')).map((el) => {
       const r = el.getBoundingClientRect();
-      const fs = parseFloat(el.getAttribute('font-size')) || 44;
       return {
         ch: el.textContent,
         cx: r.left + r.width / 2,
         cy: r.top + r.height / 2,
-        px: Math.max(9, fs * scale),
+        px: Math.max(9, (parseFloat(el.getAttribute('font-size')) || 44) * scale),
       };
     });
   }
 
-  const base = (x, y, rot, sc) =>
-    `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${rot}deg) scale(${sc})`;
-
-  // ── Crow silhouette — 200×120 viewBox, aspect 1.667 ─────────────────────
-  //
-  //  Anatomy (bird flies RIGHT, head on right, tail on left):
-  //
-  //   crow-wb  far  wing  neutral: horizontal, tip at (4,66).
-  //            pivot (112,62) → transform-origin: 56% 51.7%
-  //            rotate(+28)→ tip y≈8  (UP)   rotate(−28)→ tip y≈120 (DOWN)
-  //
-  //   Tail     fan extending left from body base — crow fan tail shape.
-  //
-  //   Body     chunky rounded torso x≈90–162, y≈44–78.
-  //
-  //   Head     large circle cx=152 cy=50 r=18 (crow: big head).
-  //
-  //   Beak     slightly hooked right-pointing wedge emerging from head.
-  //
-  //   crow-wn  near wing  neutral: swept upper-left, tip at (4,27).
-  //            pivot (112,51) → transform-origin: 56% 42.5%
-  //            rotate(+30)→ tip y≈−24 (UP, off-screen top, overflow:visible)
-  //            rotate(−32)→ tip y≈88  (DOWN, below body)
-  //
-  //  Near wing DOWN + far wing UP = both tips visible on opposite sides
-  //  of the body → the classic crow deep-flap cross-silhouette.
-  const CROW_ASPECT = 1.667;
+  // ── Crow sprite — 240×150 viewBox, flying RIGHT. Solid silhouette built
+  //    from overlapping parts; the wings are articulated in two segments:
+  //      w-arm  (inner wing)  shoulder pivot (132,62)
+  //      w-hand (primaries)   wrist pivot     (88,32) — lags the arm ~100°,
+  //                           5 slotted "finger" feathers at the tip
+  //      w-far / w-fh         far-side pair, counter-phase, depth opacity
+  //    Tail is a level graduated wedge with a serrated tip. ──
   function birdSprite(px) {
     const el = document.createElement('div');
     el.className = 'flyer-bird';
-    const h = px * 1.95, w = h * CROW_ASPECT;
+    const h = px * 2.1, w = h * (240 / 150);
     el.style.width  = w.toFixed(1) + 'px';
     el.style.height = h.toFixed(1) + 'px';
     el.innerHTML =
-      '<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      // Far wing — horizontal in neutral, opposite phase, depth-haze opacity
-      '<g class="crow-wb" style="transform-origin:56% 51.7%">' +
-        '<path d="M112 58 C92 64 64 72 38 76 C22 78 6 76 4 70' +
-              ' C4 64 8 60 16 58 C28 56 52 56 78 58 C96 60 106 62 112 66 Z"' +
-              ' opacity="0.55"/>' +
-      '</g>' +
-      // Tail — fan shape, wider at tip than at root (crow square fan tail)
-      '<path d="M88 54 C72 52 50 46 26 48 C14 50 8 56 10 64' +
-            ' C12 72 20 76 30 74 C50 72 70 68 88 66 Z"/>' +
-      // Body — chunky rounded crow torso
-      '<path d="M90 56 C104 46 128 44 148 50 C158 54 162 62 158 70' +
-            ' C152 76 132 78 112 74 C96 70 90 64 90 56 Z"/>' +
-      // Head — large (crow characteristic big-headed silhouette)
-      '<circle cx="152" cy="50" r="18"/>' +
-      // Beak — slightly hooked crow beak pointing right
-      '<path d="M166 41 C180 38 196 46 194 54 C192 58 178 60 166 58 Z"/>' +
-      // Near wing — main, full opacity, broad paddle shape
-      // Chord at midspan ≈ 26 SVG units (22 % of viewBox height) — visibly wide
-      '<g class="crow-wn" style="transform-origin:56% 42.5%">' +
-        '<path d="M112 46 C92 36 64 24 38 20 C22 17 6 19 4 27' +
-              ' C4 36 8 42 16 46 C28 50 52 54 78 56 C96 56 106 56 112 56 Z"/>' +
-      '</g>' +
-      '</svg>';
-    return el;
+      '<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+      + '<g class="w-far" style="transform-origin:126px 60px" opacity="0.45">'
+      +   '<path d="M126 56 C116 46 104 38 94 34 C88 32 84 34 84 39 C85 45 92 52 102 58 C111 62 121 64 128 63 C130 60 129 58 126 56 Z"/>'
+      +   '<g class="w-fh" style="transform-origin:92px 37px">'
+      +     '<path d="M94 34 C82 22 64 10 48 4 L34 0 L44 11 L33 12 L46 22 L36 25 L51 34 L43 39 C58 45 74 47 87 45 C93 42 96 38 94 34 Z"/>'
+      +   '</g>'
+      + '</g>'
+      + '<g class="c-tail" style="transform-origin:100px 68px">'
+      +   '<path d="M100 61 C84 59 62 58 46 60 L31 63 L40 68 L31 74 L42 77 L36 84 L50 83 C68 80 86 76 100 73 Z"/>'
+      + '</g>'
+      + '<path d="M92 64 C100 54 120 48 140 50 C154 52 162 59 161 67 C159 77 144 84 124 85 C108 85 96 78 92 70 Z"/>'
+      + '<path d="M142 56 C143 45 153 38 165 39 C176 40 183 47 184 55 C184 62 178 68 169 70 C159 72 148 67 144 61 Z"/>'
+      + '<path d="M179 47 C189 46 200 50 208 56 C201 59 190 60 181 59 C179 56 178 51 179 47 Z"/>'
+      + '<path d="M152 68 C158 67 164 68 168 70 C164 74 157 75 151 73 Z"/>'
+      + '<g class="w-arm" style="transform-origin:132px 62px">'
+      +   '<path d="M132 54 C122 42 108 33 96 29 C89 27 84 29 84 34 C85 41 92 49 102 56 L99 60 C107 65 115 67 122 69 L120 73 C128 74 134 70 136 64 C137 60 135 57 132 54 Z"/>'
+      +   '<g class="w-hand" style="transform-origin:88px 32px">'
+      +     '<path d="M90 29 C78 16 60 3 44 -3 L29 -7 L40 4 L28 5 L42 15 L31 18 L47 27 L38 33 C54 39 71 41 84 39 C90 36 93 32 90 29 Z"/>'
+      +   '</g>'
+      + '</g>'
+      + '</svg>';
+    return {
+      el,
+      arm:  el.querySelector('.w-arm'),
+      hand: el.querySelector('.w-hand'),
+      far:  el.querySelector('.w-far'),
+      fh:   el.querySelector('.w-fh'),
+      tail: el.querySelector('.c-tail'),
+    };
   }
 
-  function makeFlyer(g, showBird, vec) {
-    const el = document.createElement('div');
-    el.className = 'flyer';
-    el.style.left = g.cx + 'px';
-    el.style.top  = g.cy + 'px';
-    el.style.setProperty('--flap', rand(0.62, 0.92).toFixed(3) + 's');
+  function featherPuff(x, y, n) {
+    for (let k = 0; k < n; k++) {
+      const f = document.createElement('div');
+      f.className = 'feather';
+      f.innerHTML = '<svg viewBox="0 0 10 10"><path d="M5 0 C7.5 2 8.5 5.5 5 10 C1.5 5.5 2.5 2 5 0 Z"/></svg>';
+      flock.appendChild(f);
+      const dx = rand(-28, 28), dy = rand(12, 44), r = rand(-220, 220);
+      const anim = f.animate(
+        [{ transform: 'translate(' + (x - 4) + 'px,' + (y - 4) + 'px) rotate(0deg) scale(' + rand(0.5, 0.9).toFixed(2) + ')', opacity: 0.55 },
+         { transform: 'translate(' + (x - 4 + dx) + 'px,' + (y - 4 + dy) + 'px) rotate(' + r + 'deg) scale(0.4)', opacity: 0 }],
+        { duration: rand(700, 1100), easing: 'cubic-bezier(.3,.6,.5,1)', fill: 'forwards' });
+      anim.finished.then(() => f.remove()).catch(() => f.remove());
+    }
+  }
 
+  function makeBird(slot, i) {
+    const root = document.createElement('div');
+    root.className = 'flyer';
     const char = document.createElement('span');
     char.className = 'flyer-char';
-    char.textContent = g.ch;
-    char.style.fontSize = g.px + 'px';
+    char.textContent = slot.ch;
+    char.style.fontSize = slot.px + 'px';
+    const sprite = birdSprite(slot.px);
+    sprite.el.style.opacity = '0';
+    root.append(char, sprite.el);
+    flock.appendChild(root);
+    return {
+      i, slot, root, char, sprite,
+      x: slot.cx, y: slot.cy,
+      vx: rand(-160, 160), vy: -rand(90, 220),     // upward burst
+      z: 1, zv: -rand(0.15, 0.45),                 // start front, recede
+      rot: 0, flip: 1,
+      phase: rand(0, TAU), freq: rand(4.4, 5.6),
+      amp: 0.2, ampT: 1, glide: 0,
+      s1: rand(0, TAU), s2: rand(0, TAU),
+      hold: 0, free: 0, landDist: 999,
+      mode: 'fly',                                  // fly | land | done
+    };
+  }
 
-    const bird = birdSprite(g.px);
+  // Wandering attractor — a lissajous-ish point the flock loosely chases.
+  function wanderTarget(t) {
+    const vw = innerWidth, vh = innerHeight;
+    const x = vw / 2   + Math.sin(t * 0.23) * vw * 0.30 + Math.sin(t * 0.59 + 1.7) * vw * 0.11;
+    const y = vh * 0.42 + Math.sin(t * 0.31 + 0.8) * vh * 0.22 + Math.sin(t * 0.47 + 2.6) * vh * 0.08;
+    return { x: clamp(x, vw * 0.14, vw * 0.86), y: clamp(y, vh * 0.12, vh * 0.70) };
+  }
 
-    if (showBird) {
-      char.style.opacity = '0';
-      el.style.transform = base(vec.dx, vec.dy, vec.bank, 0.36);
-    } else {
-      bird.style.opacity = '0';
-      el.style.transform = base(0, 0, 0, 1);
+  function wingPose(b) {
+    const p = b.phase, A = b.amp;
+    // Phase math verified against a rendered flap-cycle contact sheet:
+    // the hand lags the arm by ~100°, the far pair runs counter-phase.
+    b.sprite.arm.style.transform  = 'rotate(' + (-4 + 26 * A * Math.sin(p)).toFixed(1) + 'deg)';
+    b.sprite.hand.style.transform = 'rotate(' + (8 + 28 * A * Math.sin(p - 1.7)).toFixed(1) + 'deg)';
+    b.sprite.far.style.transform  = 'rotate(' + (4 - 24 * A * Math.sin(p - 0.35)).toFixed(1) + 'deg)';
+    b.sprite.fh.style.transform   = 'rotate(' + (-6 - 16 * A * Math.sin(p - 2.0)).toFixed(1) + 'deg)';
+    b.sprite.tail.style.transform = 'rotate(' + (2 * A * Math.sin(p - 0.8)).toFixed(1) + 'deg)';
+  }
+
+  function renderBird(b, speed, ax, ay, dt) {
+    const depth = b.z * 0.5 + 0.5;                  // 0..1
+    const scale = 0.60 + 0.40 * depth;              // z=1 → exactly 1 (landing-continuous)
+
+    const face = b.vx >= 0 ? 1 : -1;
+    b.flip += (face - b.flip) * (1 - Math.exp(-dt * 6));
+    let fx = b.flip;
+    if (Math.abs(fx) < 0.12) fx = fx < 0 ? -0.12 : 0.12;
+
+    let theta = Math.atan2(b.vy, b.vx) * 57.2958;
+    if (face < 0) theta = theta > 0 ? theta - 180 : theta + 180;
+    theta = clamp(theta, -36, 36);
+    const bank = clamp((b.vx * ay - b.vy * ax) / Math.max(speed, 40) / 16, -14, 14);
+    let rotT = theta + bank * 0.5;
+    if (b.mode === 'land') rotT += clamp((110 - b.landDist) / 110, 0, 1) * 16;  // flare
+    b.rot += (rotT - b.rot) * (1 - Math.exp(-dt * 8));
+
+    const bob = Math.sin(b.phase - 1.25) * 2.6 * scale * b.amp;
+    const squash = 1 - Math.min(Math.abs(bank) * 0.006, 0.08);
+
+    b.root.style.opacity = (0.72 + 0.28 * depth).toFixed(2);
+    b.root.style.transform =
+      'translate(-50%,-50%) translate3d(' + b.x.toFixed(1) + 'px,' + (b.y + bob).toFixed(1) + 'px,0)'
+      + ' rotate(' + b.rot.toFixed(1) + 'deg)'
+      + ' scale(' + (fx * scale).toFixed(3) + ',' + (scale * squash).toFixed(3) + ')';
+    wingPose(b);
+  }
+
+  function step(dt) {
+    simT += dt;
+    const W = wanderTarget(simT);
+    const vw = innerWidth, vh = innerHeight, M = 80;
+
+    for (const b of birds) {
+      if (b.mode === 'done') continue;
+
+      // Still a letter (staggered morph): hold position, spin the wings up
+      // so the bird appears already beating. No rotation/flip while the
+      // glyph is visible.
+      if (b.hold > 0) {
+        b.hold -= dt;
+        b.phase += (b.freq + 2) * TAU * dt * 0.9;
+        b.amp = lerp(b.amp, 1, 1 - Math.exp(-dt * 5));
+        b.root.style.transform = 'translate(-50%,-50%) translate3d(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px,0)';
+        wingPose(b);
+        continue;
+      }
+
+      let ax = 0, ay = 0;
+
+      // ── boids ──
+      let sx = 0, sy = 0, alx = 0, aly = 0, cx = 0, cy = 0, na = 0, nc = 0;
+      for (const o of birds) {
+        if (o === b || o.mode === 'done' || o.hold > 0) continue;
+        const dx = b.x - o.x, dy = b.y - o.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 4096 && d2 > 0.01) {               // 64px separation radius
+          const d = Math.sqrt(d2);
+          sx += dx / d / d; sy += dy / d / d;
+        }
+        if (d2 < 22500) { alx += o.vx; aly += o.vy; na++; }     // 150px align
+        if (d2 < 48400) { cx += o.x; cy += o.y; nc++; }         // 220px cohere
+      }
+      ax += sx * (b.mode === 'land' ? 1300 : 5200);
+      ay += sy * (b.mode === 'land' ? 1300 : 5200);
+
+      if (b.free > 0) {
+        // Takeoff burst: pure fountain — no attractor, no cohesion yet.
+        b.free -= dt;
+        ay += 60;                                    // a little gravity arc
+      } else {
+        if (na) { ax += (alx / na - b.vx) * 0.9; ay += (aly / na - b.vy) * 0.9; }
+        if (nc) { ax += (cx / nc - b.x) * 0.35; ay += (cy / nc - b.y) * 0.35; }
+        if (b.mode === 'fly') {
+          ax += (W.x - b.x) * 0.55 + Math.sin(simT * 1.7 + b.s1) * 60;
+          ay += (W.y - b.y) * 0.55 + Math.sin(simT * 1.3 + b.s2) * 46;
+        }
+      }
+
+      if (b.mode === 'land') {
+        // Arrival steering toward the LIVE slot (re-measured every frame,
+        // so a window resize mid-landing can't strand a bird). Landing
+        // birds are exempt from the cruise speed floor and wall forces:
+        // they must be able to brake to zero at an arbitrary point.
+        const s = liveSlots[b.i] || b.slot;
+        const dx = s.cx - b.x, dy = s.cy - b.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        b.landDist = dist;
+        b.landT = (b.landT || 0) + dt;
+        const speedT = clamp(dist * 3.0, 0, SPEED_MAX);
+        ax += (dx / dist * speedT - b.vx) * 3.2;
+        ay += (dy / dist * speedT - b.vy) * 3.2;
+        b.zv = 0;
+        b.z += (1 - b.z) * Math.min(1, dt * 2.5);    // ease to the front plane
+        b.glide = 0;
+        b.ampT = 1 + clamp((110 - dist) / 110, 0, 1) * 0.45;  // braking flaps
+        if ((dist < 16 && Math.hypot(b.vx, b.vy) < 130) || b.landT > 6) { land(b, s); continue; }
+      }
+
+      // soft walls (not while landing — the slot is the only authority)
+      if (b.mode !== 'land') {
+        if (b.x < M)      ax += (M - b.x) * 14;
+        if (b.x > vw - M) ax -= (b.x - (vw - M)) * 14;
+        if (b.y < M)      ay += (M - b.y) * 14;
+        if (b.y > vh - M) ay -= (b.y - (vh - M)) * 14;
+      }
+
+      // integrate + speed clamp (landing birds may brake below cruise)
+      b.vx += ax * dt; b.vy += ay * dt;
+      const sp = Math.hypot(b.vx, b.vy) || 1;
+      const spc = clamp(sp, b.mode === 'land' ? 0 : SPEED_MIN, SPEED_MAX);
+      b.vx *= spc / sp; b.vy *= spc / sp;
+      b.x += b.vx * dt; b.y += b.vy * dt;
+
+      // depth drift
+      if (b.mode === 'fly') {
+        b.z += b.zv * dt;
+        if (b.z >  1) { b.z =  1; b.zv = -Math.abs(b.zv); }
+        if (b.z < -1) { b.z = -1; b.zv =  Math.abs(b.zv); }
+      }
+
+      // ── flight model: flap ↔ glide ──
+      const climb = Math.max(0, -b.vy) / 240;
+      if (b.glide > 0) {
+        b.glide -= dt;
+        b.ampT = 0.12;                               // wings set, tiny tremor
+      } else if (b.mode === 'fly') {
+        b.ampT = 1;
+        if (b.vy > 30 && spc > 200 && Math.random() < dt * 0.5) b.glide = rand(0.5, 1.3);
+      }
+      b.amp = lerp(b.amp, b.ampT, 1 - Math.exp(-dt * 6));
+      const freq = b.glide > 0 ? 1.2 : b.freq + spc / 130 + climb * 2.4;
+      b.phase += freq * TAU * dt;
+
+      renderBird(b, spc, ax, ay, dt);
     }
-    el.append(char, bird);
-    flock.appendChild(el);
-    return { el, char, bird };
   }
 
-  // A random point well beyond a screen edge, relative to the glyph.
-  function exitVector(g) {
-    const vw = innerWidth, vh = innerHeight, m = 160;
-    const edge = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
-    let dx = 0, dy = 0;
-    if (edge === 'left')  { dx = -(g.cx + m + rand(0, 280)); dy = rand(-0.5, 0.5) * vh; }
-    if (edge === 'right') { dx = (vw - g.cx) + m + rand(0, 280); dy = rand(-0.5, 0.5) * vh; }
-    if (edge === 'top')   { dy = -(g.cy + m + rand(0, 220)); dx = rand(-0.5, 0.5) * vw; }
-    if (edge === 'bottom'){ dy = (vh - g.cy) + m + rand(0, 220); dx = rand(-0.5, 0.5) * vw; }
-    return { dx, dy, bank: clamp((dx / vw) * 20, -13, 13) + rand(-5, 5) };
+  function land(b, s) {
+    b.mode = 'done';
+    const snapT = 'translate(-50%,-50%) translate3d(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px,0)';
+    b.root.animate([{ transform: snapT }], { duration: 170, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards' });
+    b.root.style.opacity = '1';
+    // fold the wings
+    b.sprite.arm.style.transform  = 'rotate(18deg)';
+    b.sprite.hand.style.transform = 'rotate(-40deg)';
+    b.sprite.far.style.transform  = 'rotate(14deg)';
+    b.sprite.fh.style.transform   = 'rotate(-34deg)';
+    b.sprite.el.animate(
+      [{ opacity: 1, transform: 'scale(1) rotate(0deg)' },
+       { opacity: 0, transform: 'scale(.35) rotate(10deg)' }],
+      { duration: 230, easing: 'ease-in', fill: 'forwards' });
+    b.char.animate(
+      [{ opacity: 0, transform: 'scale(1.6)' },
+       { opacity: 1, transform: 'scale(.92)', offset: 0.62 },
+       { opacity: 1, transform: 'scale(1)' }],
+      { duration: 320, delay: 60, easing: 'cubic-bezier(.2,1.4,.4,1)', fill: 'forwards' });
+    featherPuff(s.cx, s.cy, 2);
+    if (birds.every((x) => x.mode === 'done')) settle();
   }
 
-  // Two waypoints offset perpendicularly to the flight direction → a gentle
-  // arc instead of a straight line.  bendA (≈10–24 % of flight distance) is
-  // applied at 28 % of the journey; bendB (≈4–12 %) at 62 %.  The side is
-  // randomised per bird so paths diverge naturally.
-  function flightPath(x1, y1, x2, y2) {
-    const dx = x2 - x1, dy = y2 - y1;
-    const len = Math.hypot(dx, dy) || 1;
-    const nx = -dy / len, ny = dx / len;            // unit perpendicular
-    const side  = Math.random() < 0.5 ? 1 : -1;
-    const bendA = len * (0.10 + Math.random() * 0.14) * side;
-    const bendB = len * (0.04 + Math.random() * 0.08) * side;
-    return [
-      { x: x1 + dx * 0.28 + nx * bendA, y: y1 + dy * 0.28 + ny * bendA },
-      { x: x1 + dx * 0.62 + nx * bendB, y: y1 + dy * 0.62 + ny * bendB },
-    ];
-  }
-
-  // ── Scatter: glyphs become birds and fly off ──
-  function scatter() {
-    if (state !== 'idle') return;
-    state = 'busy';
-    document.body.classList.add('flock-active');
-    const glyphs = measureGlyphs();
-    mark.classList.add('is-hidden');
-
-    if (reduced) { state = 'scattered'; return; }
-
-    lastScatter = [];
-    const flights = glyphs.map((g, i) => {
-      const vec = exitVector(g);
-      lastScatter[i] = vec;
-      const f = makeFlyer(g, false);
-      const delay = i * 55;
-
-      f.char.animate(
-        [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.55)' }],
-        { duration: 300, delay, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' }
-      );
-      f.bird.animate(
-        [{ opacity: 0, transform: 'scale(.3) rotate(-14deg)' },
-         { opacity: 1, transform: 'scale(1) rotate(0deg)' }],
-        { duration: 340, delay, easing: 'cubic-bezier(.2,1.5,.4,1)', fill: 'forwards' }
-      );
-      setTimeout(() => f.el.classList.add('flapping'), delay + 130);
-
-      const pts = flightPath(0, 0, vec.dx, vec.dy);
-      const flight = f.el.animate(
-        [
-          { transform: base(0, 0, 0, 1),                                 opacity: 1, offset: 0 },
-          { transform: base(pts[0].x, pts[0].y, vec.bank * 0.38, 0.94), opacity: 1, offset: 0.28 },
-          { transform: base(pts[1].x, pts[1].y, vec.bank * 0.72, 0.76), opacity: 1, offset: 0.62 },
-          { transform: base(vec.dx, vec.dy, vec.bank, 0.36),             opacity: 0, offset: 1 },
-        ],
-        { duration: rand(1100, 1650), delay: delay + 175, easing: 'cubic-bezier(0.4,0,0.65,0.85)', fill: 'forwards' }
-      );
-      return flight.finished;
-    });
-
-    Promise.allSettled(flights).then(() => {
+  function settle() {
+    mark.classList.remove('is-hidden');              // real monogram beneath
+    setTimeout(() => {
       flock.replaceChildren();
-      state = 'scattered';
-    });
-  }
-
-  // ── Reform: the flock returns and rebuilds the monogram ──
-  function reform() {
-    if (state !== 'scattered') return;
-    state = 'busy';
-    const glyphs = measureGlyphs();
-
-    if (reduced) {
-      mark.classList.remove('is-hidden');
       document.body.classList.remove('flock-active');
-      state = 'idle';
-      return;
-    }
-
-    const lands = glyphs.map((g, i) => {
-      const vec = lastScatter[i] || exitVector(g);
-      const f = makeFlyer(g, true, vec);
-      f.el.classList.add('flapping');
-      const delay = i * 50;
-
-      const pts = flightPath(vec.dx, vec.dy, 0, 0);
-      const flight = f.el.animate(
-        [
-          { transform: base(vec.dx, vec.dy, vec.bank, 0.36),             opacity: 0, offset: 0 },
-          { transform: base(pts[0].x, pts[0].y, vec.bank * 0.72, 0.76), opacity: 1, offset: 0.38 },
-          { transform: base(pts[1].x, pts[1].y, vec.bank * 0.38, 0.94), opacity: 1, offset: 0.72 },
-          { transform: base(0, 0, 0, 1),                                 opacity: 1, offset: 1 },
-        ],
-        { duration: rand(1100, 1500), delay, easing: 'cubic-bezier(0.25,0.4,0.4,1)', fill: 'forwards' }
-      );
-
-      return flight.finished.then(() => {
-        f.el.classList.remove('flapping');
-        f.bird.animate(
-          [{ opacity: 1, transform: 'scale(1) rotate(0deg)' },
-           { opacity: 0, transform: 'scale(.3) rotate(12deg)' }],
-          { duration: 240, easing: 'ease-in', fill: 'forwards' }
-        );
-        return f.char.animate(
-          [{ opacity: 0, transform: 'scale(1.5)' }, { opacity: 1, transform: 'scale(1)' }],
-          { duration: 300, delay: 70, easing: 'cubic-bezier(.2,1.5,.4,1)', fill: 'forwards' }
-        ).finished;
-      });
-    });
-
-    Promise.allSettled(lands).then(() => {
-      mark.classList.remove('is-hidden'); // real monogram takes over beneath
-      requestAnimationFrame(() => {
-        flock.replaceChildren();
-        document.body.classList.remove('flock-active');
-        state = 'idle';
-      });
-    });
+      birds = []; releaseQueue = [];
+      phase = 'idle';
+      stopLoop();
+    }, 380);
   }
 
-  mark.addEventListener('mouseenter', scatter);
-  title.addEventListener('mouseenter', reform);
+  function dissolve() {
+    stopLoop();
+    flock.classList.add('dissolving');
+    setTimeout(() => {
+      flock.replaceChildren();
+      flock.classList.remove('dissolving');
+      document.body.classList.remove('flock-active');
+      mark.classList.remove('is-hidden');            // logo ready if home returns
+      birds = []; releaseQueue = [];
+      phase = 'idle';
+    }, 260);
+  }
+
+  function launch() {
+    if (phase !== 'idle' || birds.length) return;
+    const slots = glyphSlots();
+    if (!slots.length) return;
+    phase = 'out';
+    outAt = performance.now();
+    document.body.classList.add('flock-active');
+    mark.classList.add('is-hidden');
+    birds = slots.map((s, i) => makeBird(s, i));
+    birds.forEach((b, i) => {
+      const delay = i * 46;
+      b.hold = (delay + 60) / 1000;
+      b.free = b.hold + rand(0.45, 0.7);
+      b.char.animate(
+        [{ opacity: 1, transform: 'scale(1)' },
+         { opacity: 0, transform: 'scale(1.55)' }],
+        { duration: 260, delay, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' });
+      b.sprite.el.animate(
+        [{ opacity: 0, transform: 'scale(.3) rotate(-16deg)' },
+         { opacity: 1, transform: 'scale(1) rotate(0deg)' }],
+        { duration: 300, delay: delay + 40, easing: 'cubic-bezier(.2,1.5,.4,1)', fill: 'forwards' });
+      if (i % 3 === 0) featherPuff(b.x, b.y, 2);
+    });
+    startLoop();
+  }
+
+  function recall() {
+    if (phase !== 'out') return;
+    phase = 'returning';
+    releaseTimer = 0;
+    // left-to-right release → the monogram reforms like typesetting
+    releaseQueue = birds.slice().sort((a, c) => a.slot.cx - c.slot.cx);
+  }
+
+  function frame(ts) {
+    rafId = requestAnimationFrame(frame);
+    const dt = Math.min(0.034, (ts - lastTs) / 1000 || 0.016);
+    lastTs = ts;
+
+    // A loaded document replaces the empty state — birds must never fly
+    // over content. Dissolve immediately and leave the logo restored.
+    if (!document.getElementById('empty-state')) { dissolve(); return; }
+
+    if (phase === 'out' && performance.now() - outAt > AUTO_RECALL) recall();
+
+    if (phase === 'returning') {
+      liveSlots = glyphSlots();
+      releaseTimer -= dt;
+      while (releaseTimer <= 0 && releaseQueue.length) {
+        const next = releaseQueue.shift();
+        if (next.mode === 'fly') next.mode = 'land';
+        releaseTimer += 0.085;
+      }
+    }
+    step(dt);
+  }
+
+  function startLoop() {
+    if (rafId == null) { lastTs = performance.now(); rafId = requestAnimationFrame(frame); }
+  }
+  function stopLoop() {
+    if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  mark.addEventListener('mouseenter', () => { if (phase === 'idle') launch(); else recall(); });
+  mark.addEventListener('click', () => recall());
+  title.addEventListener('mouseenter', () => recall());
 })();
 </script>
 </body>
