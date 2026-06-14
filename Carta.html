@@ -6576,15 +6576,17 @@ init();
 <script>
 (function () {
   'use strict';
-  // The CARTA glyphs become crows. Not on rails — a live boids simulation:
-  // separation / alignment / cohesion around a wandering attractor, with
-  // depth (z), velocity-derived heading, banking from lateral acceleration,
-  // and articulated two-segment wings (arm + lagging hand) posed per frame.
-  // Hover the mark → the flock takes wing and murmurates over the page.
-  // Hover the title (or the mark zone, or click it) → birds peel off one
-  // by one, flare on final approach, and land back as letters.
-  // Safety: auto-recall after ~17 s; instant dissolve if a document loads;
-  // inert under prefers-reduced-motion.
+  // Enhanced CARTA flock simulation:
+  // – Animated wind field (post-clamp position offset, so it actually works)
+  // – Spatial turbulence via value noise (position-coherent swirls)
+  // – Predator/cursor fear with 1/d² panic falloff + scared flapping
+  // – Aerodynamic drag (frame-rate-independent Math.pow formulation)
+  // – Motion trails canvas (fades with bg colour, speed-hued dots)
+  // – Speed-based wing colour (cool→warm as speed increases)
+  // – Perspective z-ordering via z-index instead of DOM reorder
+  // – Drag-to-throw with 80ms velocity window
+  // – Click-anywhere panic scatter with smooth force recovery
+  // – Tab-visibility roosting (birds cluster top-right when hidden)
 
   const reduced = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -6599,22 +6601,55 @@ init();
   flock.setAttribute('aria-hidden', 'true');
   document.body.appendChild(flock);
 
+  // ── Trail canvas (behind birds in z-order) ──
+  const trailCanvas = document.createElement('canvas');
+  trailCanvas.width = innerWidth;
+  trailCanvas.height = innerHeight;
+  trailCanvas.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
+  flock.insertBefore(trailCanvas, flock.firstChild);
+  const tctx = trailCanvas.getContext('2d');
+  window.addEventListener('resize', () => {
+    trailCanvas.width  = innerWidth;
+    trailCanvas.height = innerHeight;
+  });
+
   const TAU = Math.PI * 2;
   const rand  = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp  = (a, b, t) => a + (b - a) * t;
 
-  let phase = 'idle';          // idle → out (murmuration) → returning → idle
+  let phase = 'idle';   // idle | out | returning | roosting
   let birds = [];
   let releaseQueue = [];
   let liveSlots = [];
   let rafId = null, lastTs = 0, simT = 0, outAt = 0, releaseTimer = 0;
   const AUTO_RECALL = 17000;
-  const SPEED_MIN = 90, SPEED_MAX = 330;
+  const SPEED_MAX = 340;
+  const DRAG = 0.36;     // per-second drag coefficient
 
-  // ── Glyph slots, measured live (resize/scroll-proof; the svg viewBox is
-  //    read directly — no hard-coded width). Rects stay valid while the
-  //    monogram is faded out because only opacity changes. ──
+  // Mouse tracking
+  let mouseX = -9999, mouseY = -9999;
+  let suppressNextClick = false;  // set true when a bird drag ends, to cancel the click
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+  // ── Value noise (fast, no deps) ──
+  function hash(n) {
+    n = Math.sin(n) * 43758.5453123;
+    return n - Math.floor(n);
+  }
+  function valueNoise(x, y) {
+    const ix = Math.floor(x), iy = Math.floor(y);
+    const fx = x - ix, fy = y - iy;
+    const ux = fx * fx * (3 - 2 * fx);
+    const uy = fy * fy * (3 - 2 * fy);
+    const n00 = hash(ix     + iy     * 57.1);
+    const n10 = hash(ix + 1 + iy     * 57.1);
+    const n01 = hash(ix     + (iy+1) * 57.1);
+    const n11 = hash(ix + 1 + (iy+1) * 57.1);
+    return lerp(lerp(n00, n10, ux), lerp(n01, n11, ux), uy);
+  }
+
+  // ── Glyph slots ──
   function glyphSlots() {
     const vb = svg.viewBox && svg.viewBox.baseVal;
     const scale = svg.getBoundingClientRect().width / ((vb && vb.width) || 290);
@@ -6629,13 +6664,7 @@ init();
     });
   }
 
-  // ── Crow sprite — 240×150 viewBox, flying RIGHT. Solid silhouette built
-  //    from overlapping parts; the wings are articulated in two segments:
-  //      w-arm  (inner wing)  shoulder pivot (132,62)
-  //      w-hand (primaries)   wrist pivot     (88,32) — lags the arm ~100°,
-  //                           5 slotted "finger" feathers at the tip
-  //      w-far / w-fh         far-side pair, counter-phase, depth opacity
-  //    Tail is a level graduated wedge with a serrated tip. ──
+  // ── Crow sprite ──
   function birdSprite(px) {
     const el = document.createElement('div');
     el.className = 'flyer-bird';
@@ -6682,9 +6711,9 @@ init();
       flock.appendChild(f);
       const dx = rand(-28, 28), dy = rand(12, 44), r = rand(-220, 220);
       const anim = f.animate(
-        [{ transform: 'translate(' + (x - 4) + 'px,' + (y - 4) + 'px) rotate(0deg) scale(' + rand(0.5, 0.9).toFixed(2) + ')', opacity: 0.55 },
-         { transform: 'translate(' + (x - 4 + dx) + 'px,' + (y - 4 + dy) + 'px) rotate(' + r + 'deg) scale(0.4)', opacity: 0 }],
-        { duration: rand(700, 1100), easing: 'cubic-bezier(.3,.6,.5,1)', fill: 'forwards' });
+        [{ transform: 'translate(' + (x-4) + 'px,' + (y-4) + 'px) rotate(0deg) scale(' + rand(0.5,0.9).toFixed(2) + ')', opacity: 0.55 },
+         { transform: 'translate(' + (x-4+dx) + 'px,' + (y-4+dy) + 'px) rotate(' + r + 'deg) scale(0.4)', opacity: 0 }],
+        { duration: rand(700,1100), easing: 'cubic-bezier(.3,.6,.5,1)', fill: 'forwards' });
       anim.finished.then(() => f.remove()).catch(() => f.remove());
     }
   }
@@ -6700,42 +6729,100 @@ init();
     sprite.el.style.opacity = '0';
     root.append(char, sprite.el);
     flock.appendChild(root);
-    return {
+
+    // Drag-to-throw state
+    root.style.cursor = 'grab';
+    const baseFreq = rand(4.4, 5.6);
+    const b = {
       i, slot, root, char, sprite,
       x: slot.cx, y: slot.cy,
-      vx: rand(-160, 160), vy: -rand(90, 220),     // upward burst
-      z: 1, zv: -rand(0.15, 0.45),                 // start front, recede
+      vx: rand(-160,160), vy: -rand(90,220),
+      z: 1, zv: -rand(0.15,0.45),
       rot: 0, flip: 1,
-      phase: rand(0, TAU), freq: rand(4.4, 5.6),
+      phase: rand(0,TAU), freq: baseFreq, baseFreq,
       amp: 0.2, ampT: 1, glide: 0,
-      s1: rand(0, TAU), s2: rand(0, TAU),
+      s1: rand(0,TAU), s2: rand(0,TAU),
       hold: 0, free: 0, landDist: 999,
-      mode: 'fly',                                  // fly | land | done
+      mode: 'fly',
+      panicTimer: 0,
+      scaredTimer: 0,
+      dragHistory: [],
+      dragging: false,
+      wakeTimer: 0,
     };
+
+    // Drag-to-throw listeners — use AbortController so they're cleaned up on settle/dissolve
+    const dragAC = new AbortController();
+    b._dragAbort = () => dragAC.abort();
+    const sig = { signal: dragAC.signal };
+    root.addEventListener('mousedown', e => {
+      if (b.mode !== 'fly') return;
+      b.dragging = true;
+      b.dragHistory = [];
+      root.style.cursor = 'grabbing';
+      e.stopPropagation();
+    }, sig);
+    document.addEventListener('mousemove', e => {
+      if (!b.dragging) return;
+      b.x = e.clientX; b.y = e.clientY;
+      b.vx = 0; b.vy = 0;
+      b.dragHistory.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+      if (b.dragHistory.length > 30) b.dragHistory.shift();
+    }, sig);
+    document.addEventListener('mouseup', () => {
+      if (!b.dragging) return;
+      b.dragging = false;
+      suppressNextClick = true;  // prevent panic firing at the drag release point
+      root.style.cursor = 'grab';
+      const now = performance.now();
+      const recent = b.dragHistory.filter(h => now - h.t < 80);
+      if (recent.length >= 2) {
+        const first = recent[0], last = recent[recent.length-1];
+        const dtD = (last.t - first.t) / 1000 || 0.016;
+        b.vx = (last.x - first.x) / dtD;
+        b.vy = (last.y - first.y) / dtD;
+        const sp = Math.hypot(b.vx, b.vy);
+        if (sp > 900) { b.vx *= 900/sp; b.vy *= 900/sp; }
+      }
+    }, sig);
+
+    return b;
   }
 
-  // Wandering attractor — a lissajous-ish point the flock loosely chases.
+  // Wandering attractor
   function wanderTarget(t) {
     const vw = innerWidth, vh = innerHeight;
-    const x = vw / 2   + Math.sin(t * 0.23) * vw * 0.30 + Math.sin(t * 0.59 + 1.7) * vw * 0.11;
-    const y = vh * 0.42 + Math.sin(t * 0.31 + 0.8) * vh * 0.22 + Math.sin(t * 0.47 + 2.6) * vh * 0.08;
-    return { x: clamp(x, vw * 0.14, vw * 0.86), y: clamp(y, vh * 0.12, vh * 0.70) };
+    const x = vw/2 + Math.sin(t*0.23)*vw*0.30 + Math.sin(t*0.59+1.7)*vw*0.11;
+    const y = vh*0.42 + Math.sin(t*0.31+0.8)*vh*0.22 + Math.sin(t*0.47+2.6)*vh*0.08;
+    return { x: clamp(x, vw*0.14, vw*0.86), y: clamp(y, vh*0.12, vh*0.70) };
   }
 
   function wingPose(b) {
     const p = b.phase, A = b.amp;
-    // Phase math verified against a rendered flap-cycle contact sheet:
-    // the hand lags the arm by ~100°, the far pair runs counter-phase.
-    b.sprite.arm.style.transform  = 'rotate(' + (-4 + 26 * A * Math.sin(p)).toFixed(1) + 'deg)';
-    b.sprite.hand.style.transform = 'rotate(' + (8 + 28 * A * Math.sin(p - 1.7)).toFixed(1) + 'deg)';
-    b.sprite.far.style.transform  = 'rotate(' + (4 - 24 * A * Math.sin(p - 0.35)).toFixed(1) + 'deg)';
-    b.sprite.fh.style.transform   = 'rotate(' + (-6 - 16 * A * Math.sin(p - 2.0)).toFixed(1) + 'deg)';
-    b.sprite.tail.style.transform = 'rotate(' + (2 * A * Math.sin(p - 0.8)).toFixed(1) + 'deg)';
+    b.sprite.arm.style.transform  = 'rotate(' + (-4  + 26*A*Math.sin(p)).toFixed(1)       + 'deg)';
+    b.sprite.hand.style.transform = 'rotate(' + (8   + 28*A*Math.sin(p-1.7)).toFixed(1)   + 'deg)';
+    b.sprite.far.style.transform  = 'rotate(' + (4   - 24*A*Math.sin(p-0.35)).toFixed(1)  + 'deg)';
+    b.sprite.fh.style.transform   = 'rotate(' + (-6  - 16*A*Math.sin(p-2.0)).toFixed(1)   + 'deg)';
+    b.sprite.tail.style.transform = 'rotate(' + (2*A*Math.sin(p-0.8)).toFixed(1)           + 'deg)';
+  }
+
+  function applySpeedColor(b, spc) {
+    const dark = document.body.classList.contains('dark');
+    const slowHue = dark ? 200 : 220;
+    const fastHue = dark ? 28 : 30;
+    const t = spc / SPEED_MAX;
+    const hue = Math.round(lerp(slowHue, fastHue, t));
+    const sat = Math.round(dark ? lerp(35, 70, t) : lerp(30, 65, t));
+    const lit = Math.round(dark ? lerp(65, 60, t) : 52);
+    const stroke = `hsl(${hue},${sat}%,${lit}%)`;
+    [b.sprite.arm, b.sprite.hand, b.sprite.far, b.sprite.fh].forEach(el => {
+      el.style.stroke = stroke;
+    });
   }
 
   function renderBird(b, speed, ax, ay, dt) {
-    const depth = b.z * 0.5 + 0.5;                  // 0..1
-    const scale = 0.60 + 0.40 * depth;              // z=1 → exactly 1 (landing-continuous)
+    const depth = b.z * 0.5 + 0.5;
+    const scale = 0.60 + 0.40 * depth;
 
     const face = b.vx >= 0 ? 1 : -1;
     b.flip += (face - b.flip) * (1 - Math.exp(-dt * 6));
@@ -6747,31 +6834,83 @@ init();
     theta = clamp(theta, -36, 36);
     const bank = clamp((b.vx * ay - b.vy * ax) / Math.max(speed, 40) / 16, -14, 14);
     let rotT = theta + bank * 0.5;
-    if (b.mode === 'land') rotT += clamp((110 - b.landDist) / 110, 0, 1) * 16;  // flare
+    if (b.mode === 'land') rotT += clamp((110 - b.landDist) / 110, 0, 1) * 16;
     b.rot += (rotT - b.rot) * (1 - Math.exp(-dt * 8));
 
     const bob = Math.sin(b.phase - 1.25) * 2.6 * scale * b.amp;
     const squash = 1 - Math.min(Math.abs(bank) * 0.006, 0.08);
 
+    // z-index for depth ordering (avoids DOM reorder mutations)
+    b.root.style.zIndex = String(Math.round((b.z + 1) * 50));
     b.root.style.opacity = (0.72 + 0.28 * depth).toFixed(2);
     b.root.style.transform =
       'translate(-50%,-50%) translate3d(' + b.x.toFixed(1) + 'px,' + (b.y + bob).toFixed(1) + 'px,0)'
       + ' rotate(' + b.rot.toFixed(1) + 'deg)'
       + ' scale(' + (fx * scale).toFixed(3) + ',' + (scale * squash).toFixed(3) + ')';
     wingPose(b);
+    applySpeedColor(b, speed);
   }
+
+  // ── Panic scatter ──
+  function triggerPanic(cx, cy) {
+    birds.forEach(b => {
+      if (b.mode !== 'fly') return;
+      const dx = b.x - cx, dy = b.y - cy;
+      const d = Math.max(Math.hypot(dx, dy), 30);
+      const impulse = Math.min(700 / d, 400);
+      b.vx += (dx/d) * impulse;
+      b.vy += (dy/d) * impulse;
+      b.panicTimer = rand(1.5, 2.5);
+      b.freq = Math.min(b.freq + 2, 8);
+    });
+  }
+
+  // Click-to-panic (only while flock is out)
+  document.addEventListener('click', e => {
+    if (suppressNextClick) { suppressNextClick = false; return; }  // swallow post-drag click
+    if (phase !== 'out') return;
+    if (e.target.closest && e.target.closest('#carta-flock')) return; // click inside flock div
+    triggerPanic(e.clientX, e.clientY);
+  });
 
   function step(dt) {
     simT += dt;
     const W = wanderTarget(simT);
     const vw = innerWidth, vh = innerHeight, M = 80;
 
+    // Animated wind — applied AFTER velocity clamp so it isn't absorbed
+    const windX = Math.sin(simT * 0.07) * 28;
+    const windY = Math.cos(simT * 0.05) * 11;
+
+    // ── Trail canvas fade — use destination-out so trails decay to transparent,
+    //    not to a solid bg fill (which would paint an opaque tint over the page) ──
+    tctx.save();
+    tctx.globalCompositeOperation = 'destination-out';
+    tctx.fillStyle = 'rgba(0,0,0,0.07)';
+    tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+    tctx.restore();
+
     for (const b of birds) {
       if (b.mode === 'done') continue;
 
-      // Still a letter (staggered morph): hold position, spin the wings up
-      // so the bird appears already beating. No rotation/flip while the
-      // glyph is visible.
+      // Roosting state — pinned in place, gentle sway
+      if (b.mode === 'roost') {
+        if (b.roostSlot) {
+          const rx = b.roostSlot.cx, ry = b.roostSlot.cy;
+          b.vx += (rx - b.x) * 6 * dt + Math.sin(simT * 0.3 + b.s1) * 8 * dt;
+          b.vy += (ry - b.y) * 6 * dt;
+          b.vx *= Math.pow(1 - 0.85, dt);
+          b.vy *= Math.pow(1 - 0.85, dt);
+          b.x += b.vx * dt; b.y += b.vy * dt;
+        }
+        b.phase += b.freq * TAU * dt * 0.3;
+        b.amp = lerp(b.amp, 0.15, 1 - Math.exp(-dt * 3));
+        b.root.style.transform = 'translate(-50%,-50%) translate3d(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px,0)';
+        wingPose(b);
+        continue;
+      }
+
+      // Hold phase (letter morph)
       if (b.hold > 0) {
         b.hold -= dt;
         b.phase += (b.freq + 2) * TAU * dt * 0.9;
@@ -6781,84 +6920,144 @@ init();
         continue;
       }
 
+      // Skip physics if being dragged
+      if (b.dragging) {
+        b.root.style.transform = 'translate(-50%,-50%) translate3d(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px,0)';
+        wingPose(b);
+        continue;
+      }
+
       let ax = 0, ay = 0;
 
-      // ── boids ──
+      // ── Boids: separation / alignment / cohesion ──
       let sx = 0, sy = 0, alx = 0, aly = 0, cx = 0, cy = 0, na = 0, nc = 0;
       for (const o of birds) {
-        if (o === b || o.mode === 'done' || o.hold > 0) continue;
+        if (o === b || o.mode === 'done' || o.hold > 0 || o.mode === 'roost') continue;
         const dx = b.x - o.x, dy = b.y - o.y;
         const d2 = dx * dx + dy * dy;
-        if (d2 < 4096 && d2 > 0.01) {               // 64px separation radius
+        if (d2 < 4096 && d2 > 0.01) {
           const d = Math.sqrt(d2);
-          sx += dx / d / d; sy += dy / d / d;
+          sx += dx/d/d; sy += dy/d/d;
         }
-        if (d2 < 22500) { alx += o.vx; aly += o.vy; na++; }     // 150px align
-        if (d2 < 48400) { cx += o.x; cy += o.y; nc++; }         // 220px cohere
+        if (d2 < 22500) { alx += o.vx; aly += o.vy; na++; }
+        if (d2 < 48400) { cx += o.x; cy += o.y; nc++; }
       }
-      ax += sx * (b.mode === 'land' ? 1300 : 5200);
-      ay += sy * (b.mode === 'land' ? 1300 : 5200);
+
+      const sepWeight = b.mode === 'land' ? 1300 : 5200;
+      ax += sx * sepWeight;
+      ay += sy * sepWeight;
 
       if (b.free > 0) {
-        // Takeoff burst: pure fountain — no attractor, no cohesion yet.
         b.free -= dt;
-        ay += 60;                                    // a little gravity arc
+        ay += 60;
       } else {
-        if (na) { ax += (alx / na - b.vx) * 0.9; ay += (aly / na - b.vy) * 0.9; }
-        if (nc) { ax += (cx / nc - b.x) * 0.35; ay += (cy / nc - b.y) * 0.35; }
+        // Panic recovery scale (separation always full)
+        const pr = b.panicTimer > 0 ? Math.max(0, 1 - b.panicTimer / 2.0) : 1;
+        if (na) { ax += (alx/na - b.vx) * 0.9 * pr; ay += (aly/na - b.vy) * 0.9 * pr; }
+        if (nc) { ax += (cx/nc - b.x) * 0.35 * pr; ay += (cy/nc - b.y) * 0.35 * pr; }
         if (b.mode === 'fly') {
-          ax += (W.x - b.x) * 0.55 + Math.sin(simT * 1.7 + b.s1) * 60;
-          ay += (W.y - b.y) * 0.55 + Math.sin(simT * 1.3 + b.s2) * 46;
+          ax += ((W.x - b.x) * 0.55 + Math.sin(simT * 1.7 + b.s1) * 60) * pr;
+          ay += ((W.y - b.y) * 0.55 + Math.sin(simT * 1.3 + b.s2) * 46) * pr;
+        }
+
+        // ── Spatial turbulence (position-coherent swirls) ──
+        if (b.mode === 'fly') {
+          const nx = valueNoise(b.x * 0.004, b.y * 0.004 + simT * 0.25);
+          const ny = valueNoise(b.x * 0.004 + 73.1, b.y * 0.004 + simT * 0.25);
+          ax += (nx - 0.5) * 90;
+          ay += (ny - 0.5) * 70;
+        }
+
+        // ── Predator / cursor fear (1/d² panic) ──
+        if (b.mode === 'fly') {
+          const FEAR_R2 = 220 * 220;
+          const hdx = b.x - mouseX, hdy = b.y - mouseY;
+          const hd2 = hdx*hdx + hdy*hdy;
+          if (hd2 < FEAR_R2 && hd2 > 100) {
+            const hd = Math.sqrt(hd2);
+            const fStr = 9000 / hd2;
+            ax += (hdx/hd) * fStr;
+            ay += (hdy/hd) * fStr;
+            b.scaredTimer = 0.5;
+            // Scared birds flap harder — boost freq toward a scared ceiling
+            const scaredFreq = b.baseFreq + lerp(0, 3.5, 1 - hd2/FEAR_R2);
+            b.freq = lerp(b.freq, scaredFreq, 1 - Math.exp(-dt * 4));
+          }
+        }
+        // Decay scared state and lerp freq back to baseline when calm
+        if (b.scaredTimer > 0) {
+          b.scaredTimer -= dt;
+        } else {
+          b.freq = lerp(b.freq, b.baseFreq, 1 - Math.exp(-dt * 1.5));
         }
       }
 
       if (b.mode === 'land') {
-        // Arrival steering toward the LIVE slot (re-measured every frame,
-        // so a window resize mid-landing can't strand a bird). Landing
-        // birds are exempt from the cruise speed floor and wall forces:
-        // they must be able to brake to zero at an arbitrary point.
         const s = liveSlots[b.i] || b.slot;
         const dx = s.cx - b.x, dy = s.cy - b.y;
         const dist = Math.hypot(dx, dy) || 1;
         b.landDist = dist;
         b.landT = (b.landT || 0) + dt;
         const speedT = clamp(dist * 3.0, 0, SPEED_MAX);
-        ax += (dx / dist * speedT - b.vx) * 3.2;
-        ay += (dy / dist * speedT - b.vy) * 3.2;
+        ax += (dx/dist * speedT - b.vx) * 3.2;
+        ay += (dy/dist * speedT - b.vy) * 3.2;
         b.zv = 0;
-        b.z += (1 - b.z) * Math.min(1, dt * 2.5);    // ease to the front plane
+        b.z += (1 - b.z) * Math.min(1, dt * 2.5);
         b.glide = 0;
-        b.ampT = 1 + clamp((110 - dist) / 110, 0, 1) * 0.45;  // braking flaps
+        b.ampT = 1 + clamp((110 - dist) / 110, 0, 1) * 0.45;
         if ((dist < 16 && Math.hypot(b.vx, b.vy) < 130) || b.landT > 6) { land(b, s); continue; }
       }
 
-      // soft walls (not while landing — the slot is the only authority)
+      // Soft walls
       if (b.mode !== 'land') {
         if (b.x < M)      ax += (M - b.x) * 14;
-        if (b.x > vw - M) ax -= (b.x - (vw - M)) * 14;
+        if (b.x > vw - M) ax -= (b.x - (vw-M)) * 14;
         if (b.y < M)      ay += (M - b.y) * 14;
-        if (b.y > vh - M) ay -= (b.y - (vh - M)) * 14;
+        if (b.y > vh - M) ay -= (b.y - (vh-M)) * 14;
       }
 
-      // integrate + speed clamp (landing birds may brake below cruise)
+      // ── Integrate with aerodynamic drag (frame-rate-independent) ──
       b.vx += ax * dt; b.vy += ay * dt;
+      const dragMul = Math.pow(1 - DRAG, dt);
+      b.vx *= dragMul; b.vy *= dragMul;
+
+      // Soft speed minimum (spring toward floor, not hard clamp)
+      const spNow = Math.hypot(b.vx, b.vy) || 1;
+      const SPEED_SOFT_MIN = b.mode === 'land' ? 0 : 60;
+      if (spNow < SPEED_SOFT_MIN && b.mode !== 'land') {
+        const push = (SPEED_SOFT_MIN - spNow) * dt * 5;
+        b.vx += (b.vx / spNow) * push;
+        b.vy += (b.vy / spNow) * push;
+      }
+      // Hard speed cap
       const sp = Math.hypot(b.vx, b.vy) || 1;
-      const spc = clamp(sp, b.mode === 'land' ? 0 : SPEED_MIN, SPEED_MAX);
-      b.vx *= spc / sp; b.vy *= spc / sp;
+      if (sp > SPEED_MAX) { b.vx *= SPEED_MAX/sp; b.vy *= SPEED_MAX/sp; }
+
+      // Decay panic timer
+      if (b.panicTimer > 0) b.panicTimer = Math.max(0, b.panicTimer - dt);
+
+      // ── Position update ──
       b.x += b.vx * dt; b.y += b.vy * dt;
 
-      // depth drift
+      // Wind applied AFTER speed clamp so it isn't normalised away
+      if (b.mode === 'fly') {
+        b.x += windX * dt;
+        b.y += windY * dt;
+      }
+
+      // Depth drift
       if (b.mode === 'fly') {
         b.z += b.zv * dt;
         if (b.z >  1) { b.z =  1; b.zv = -Math.abs(b.zv); }
         if (b.z < -1) { b.z = -1; b.zv =  Math.abs(b.zv); }
       }
 
-      // ── flight model: flap ↔ glide ──
+      // Flight model: flap ↔ glide
+      const spc = Math.hypot(b.vx, b.vy);
       const climb = Math.max(0, -b.vy) / 240;
       if (b.glide > 0) {
         b.glide -= dt;
-        b.ampT = 0.12;                               // wings set, tiny tremor
+        b.ampT = 0.12;
       } else if (b.mode === 'fly') {
         b.ampT = 1;
         if (b.vy > 30 && spc > 200 && Math.random() < dt * 0.5) b.glide = rand(0.5, 1.3);
@@ -6868,6 +7067,16 @@ init();
       b.phase += freq * TAU * dt;
 
       renderBird(b, spc, ax, ay, dt);
+
+      // ── Trail canvas dot ──
+      if (b.mode === 'fly') {
+        const t2 = spc / SPEED_MAX;
+        const hue = Math.round(lerp(220, 30, t2));
+        tctx.fillStyle = `hsla(${hue},60%,52%,0.55)`;
+        tctx.beginPath();
+        tctx.arc(b.x, b.y, 1.4, 0, TAU);
+        tctx.fill();
+      }
     }
   }
 
@@ -6876,11 +7085,12 @@ init();
     const snapT = 'translate(-50%,-50%) translate3d(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px,0)';
     b.root.animate([{ transform: snapT }], { duration: 170, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards' });
     b.root.style.opacity = '1';
-    // fold the wings
     b.sprite.arm.style.transform  = 'rotate(18deg)';
     b.sprite.hand.style.transform = 'rotate(-40deg)';
     b.sprite.far.style.transform  = 'rotate(14deg)';
     b.sprite.fh.style.transform   = 'rotate(-34deg)';
+    // Reset wing colour on landing
+    [b.sprite.arm, b.sprite.hand, b.sprite.far, b.sprite.fh].forEach(el => { el.style.stroke = ''; });
     b.sprite.el.animate(
       [{ opacity: 1, transform: 'scale(1) rotate(0deg)' },
        { opacity: 0, transform: 'scale(.35) rotate(10deg)' }],
@@ -6894,10 +7104,18 @@ init();
     if (birds.every((x) => x.mode === 'done')) settle();
   }
 
+  function cleanupBirds() {
+    // Abort all drag listeners and clear trail canvas so old trails don't bleed through
+    birds.forEach(b => { if (b._dragAbort) b._dragAbort(); });
+    tctx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+  }
+
   function settle() {
-    mark.classList.remove('is-hidden');              // real monogram beneath
+    mark.classList.remove('is-hidden');
     setTimeout(() => {
+      cleanupBirds();
       flock.replaceChildren();
+      flock.insertBefore(trailCanvas, flock.firstChild);
       document.body.classList.remove('flock-active');
       birds = []; releaseQueue = [];
       phase = 'idle';
@@ -6907,12 +7125,14 @@ init();
 
   function dissolve() {
     stopLoop();
+    cleanupBirds();
     flock.classList.add('dissolving');
     setTimeout(() => {
       flock.replaceChildren();
+      flock.insertBefore(trailCanvas, flock.firstChild);
       flock.classList.remove('dissolving');
       document.body.classList.remove('flock-active');
-      mark.classList.remove('is-hidden');            // logo ready if home returns
+      mark.classList.remove('is-hidden');
       birds = []; releaseQueue = [];
       phase = 'idle';
     }, 260);
@@ -6948,17 +7168,35 @@ init();
     if (phase !== 'out') return;
     phase = 'returning';
     releaseTimer = 0;
-    // left-to-right release → the monogram reforms like typesetting
     releaseQueue = birds.slice().sort((a, c) => a.slot.cx - c.slot.cx);
   }
+
+  // ── Tab visibility roosting ──
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && phase === 'out') {
+      birds.forEach((b, i) => {
+        b.mode = 'roost';
+        b.roostSlot = {
+          cx: innerWidth - 26 - (i % 3) * 18,
+          cy: 68 + Math.floor(i / 3) * 20,  // clear the 52px topbar
+        };
+      });
+      phase = 'roosting';
+    } else if (document.visibilityState === 'visible' && phase === 'roosting') {
+      birds.forEach(b => {
+        b.mode = 'fly';
+        b.wakeTimer = 0.6;
+      });
+      phase = 'out';
+      outAt = performance.now();  // reset so auto-recall doesn't fire immediately on wake
+    }
+  });
 
   function frame(ts) {
     rafId = requestAnimationFrame(frame);
     const dt = Math.min(0.034, (ts - lastTs) / 1000 || 0.016);
     lastTs = ts;
 
-    // A loaded document replaces the empty state — birds must never fly
-    // over content. Dissolve immediately and leave the logo restored.
     if (!document.getElementById('empty-state')) { dissolve(); return; }
 
     if (phase === 'out' && performance.now() - outAt > AUTO_RECALL) recall();
@@ -6987,5 +7225,6 @@ init();
   title.addEventListener('mouseenter', () => recall());
 })();
 </script>
+
 </body>
 </html>
